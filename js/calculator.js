@@ -621,6 +621,9 @@ async function downloadPdf() {
 
   pdfShell.innerHTML = `
     <div style="border:1px solid #cfd2d8;">
+      <div style="padding:10px 12px;text-align:center;font-size:18px;font-weight:800;letter-spacing:.08em;border-bottom:1px solid #cfd2d8;">
+        QUOTATION
+      </div>
       <div style="display:grid;grid-template-columns: 1fr 180px;">
         <div style="padding:10px;border-right:1px solid #cfd2d8;border-bottom:1px solid #cfd2d8;line-height:1.35;">
           <div style="font-weight:700;">Company Address</div>
