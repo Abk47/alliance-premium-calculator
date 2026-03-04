@@ -370,9 +370,9 @@ function calculate() {
   const modeLabels = {monthly:'Monthly', quarterly:'Quarterly', semi:'Semi-Annual', annual:'Annual'};
   const periodPremium = monthlyTotal * modeFactor;
   const annualPremium = monthlyTotal * 12;
-  // Cashback = 10× monthly premium, paid at months 36, 72, 108 (if within policy term)
+  // Cashback = 10× monthly premium, paid every 36 contributions within policy term
   const policyEndMonth = term * 12;
-  const cashbackMonths = [36, 72, 108].filter(m => m <= policyEndMonth);
+  const cashbackMonths = [36, 72, 108, 144, 180].filter(m => m <= policyEndMonth);
   const numPayouts = cashbackMonths.length;
   const cashbackAmt = hasCashback ? monthlyTotal * 10 : 0;
   const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
