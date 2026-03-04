@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alliance Life - Premium Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/calculator.css">
+<!-- styles moved to calculator.css -->
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo-shield">
+        <img src="ALAL.png" alt="Alliance Life logo" />
+      </div>
+      <div class="logo-text">
+        <div class="logo-name">Alliance Life</div>
+        <div class="logo-sub">Assurance Limited</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="pill">Retail Calculator</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ HERO BAND ═══════════════ -->
+<div class="hero-band">
+  <div class="hero-stripe"></div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-title">Premium <span>Calculator</span></div>
+      <div class="hero-desc">Generate accurate client quotations – Life and Education plans include optional WOP and cashback riders; Life Plus plans only offer cashback.</div>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <div class="hero-stat">
+        <div class="hero-stat-val">6</div>
+        <div class="hero-stat-lbl">Plan Types</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">5</div>
+        <div class="hero-stat-lbl">Terms</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">4</div>
+        <div class="hero-stat-lbl">Pay Modes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="wrapper">
+  <div class="grid">
+
+    <!-- LEFT COLUMN: Inputs -->
+    <div>
+
+      <!-- Client Details -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">👤</div>
+          <div class="card-title">Client Information</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Client Name</label>
+            <!-- only letters, spaces and basic punctuation allowed; helps prevent accidental script tags -->
+            <input type="text" id="clientName" placeholder="e.g. John Msigwa" pattern="[A-Za-z\s\.,'-]{1,100}" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label-required">Date of Birth</label>
+              <input type="date" id="dob" />
+            </div>
+            <div class="field">
+              <label class="label-required">Age (Last Birthday)</label>
+              <input type="number" id="age" placeholder="Auto or manual" min="18" max="60" />
+              <div class="input-hint">📋 Valid range: 18–60 yrs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy Details -->
+      <div class="card">
+        <div class="card-header card-header-red">
+          <div class="card-icon">📋</div>
+          <div class="card-title">Policy Details</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="label-required">Plan Type</label>
+            <select id="plan">
+              <option value="Life Plan- With cash back">Life Plan – With Cash Back</option>
+              <option value="Life Plan- No cash back">Life Plan – No Cash Back</option>
+              <option value="Education Plan- With cash back">Education Plan – With Cash Back</option>
+              <option value="Education Plan- No cash back">Education Plan – No Cash Back</option>
+              <option value="Life Plus- With cash back">Life Plus – With Cash Back</option>
+              <option value="Life Plus- No cash back">Life Plus – No Cash Back</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label-required">Policy Term</label>
+              <select id="term">
+                <option value="5">5 Years</option>
+                <option value="7">7 Years</option>
+                <option value="10" selected>10 Years</option>
+                <option value="12">12 Years</option>
+                <option value="15">15 Years</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="label-required">Sum Assured (TZS)</label>
+              <input type="text" id="sa" inputmode="numeric" placeholder="e.g. 5,000,000" data-step="500000" data-min="5000000" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Mode of Payment</label>
+            <div class="seg">
+              <button class="seg-btn active" onclick="setMode('monthly',this)">Monthly</button>
+              <button class="seg-btn" onclick="setMode('quarterly',this)">Quarterly</button>
+              <button class="seg-btn" onclick="setMode('semi',this)">Semi-Annual</button>
+              <button class="seg-btn" onclick="setMode('annual',this)">Annual</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Benefits -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">✨</div>
+          <div class="card-title">Additional Benefits</div>
+        </div>
+        <div class="card-body">
+          <div class="toggle-row" id="wopRow">
+            <div class="toggle-info">
+              <div class="toggle-label">Waiver of Premium (TPD)</div>
+              <div class="toggle-sub">Premium waived upon total permanent disability event</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="wop" /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Cash Back Benefit</div>
+              <div class="toggle-sub">Client receives refund after every 36th premium paid</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="cashbackToggle" onchange="syncCashback()" /><span class="slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="errorMsg" class="error-msg">⚠️ <span id="errorText"></span></div>
+
+      <!-- CTA -->
+      <button class="btn-calc" onclick="calculate()">
+        <span class="btn-icon">⚡</span> Calculate Premium
+      </button>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Results -->
+    <div class="right-col">
+      <div class="card" style="margin-bottom:0;overflow:visible;box-shadow:none;background:transparent;border:none;">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Quotation Summary</div>
+        </div>
+        <div class="card-body" style="background:#fff;border-radius:0 0 var(--radius) var(--radius);border:1px solid rgba(0,11,145,.07);border-top:none;">
+          <div id="result">
+            <div id="resultContent"></div>
+          </div>
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon">📄</div>
+            <div class="empty-title">No Quotation Yet</div>
+            <div class="empty-sub">Complete the client and policy details, then click <strong>Calculate Premium</strong> to generate a full quotation breakdown.</div>
+          </div>
+          <!-- PDF download button shown after a result is generated -->
+          <button id="downloadPdf" class="btn-calc" style="display:none;margin-top:1rem;" onclick="downloadPdf()">
+            ⬇️ Download PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  Alliance Life Assurance Limited · Internal Retail Calculator · <span>Confidential</span>
+</div>
+
+<!-- NOTE: For stronger security in production add Subresource Integrity (SRI) hashes
+     to the `integrity` attribute below. You can compute them with:
+       openssl dgst -sha512 -binary <file> | openssl base64 -A
+     Then set integrity="sha512-<base64hash>" and keep crossorigin="anonymous". -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+<script src="js/calculator.js"></script>
+<!-- script moved to calculator.js -->
+</body>
+</html>
