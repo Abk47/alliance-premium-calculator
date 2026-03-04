@@ -303,7 +303,8 @@ function computeBonuses(planName, termYears, sumAssured, monthlyPremium) {
   const totalTermBonus = termRate * totalRevBonus;
 
   const hasCashback = planName.endsWith('With cash back');
-  const singleCashback = hasCashback ? 10 * monthlyPremium : 0;
+  const roundedMonthlyPremium = Math.round(monthlyPremium);
+  const singleCashback = hasCashback ? 10 * roundedMonthlyPremium : 0;
   const cashbackCount = lookupCashbackCount(termYears);
   const totalCashback = cashbackCount * singleCashback;
 
@@ -440,11 +441,12 @@ function calculate() {
   const modeLabels = {monthly:'Monthly', quarterly:'Quarterly', semi:'Semi-Annual', annual:'Annual'};
   const periodPremium = monthlyTotal * modeFactor;
   const annualPremium = monthlyTotal * 12;
+  const roundedMonthlyTotal = Math.round(monthlyTotal);
   // Cashback = 10× monthly premium, paid every 36 contributions within policy term
   const policyEndMonth = term * 12;
   const cashbackMonths = [36, 72, 108, 144, 180].filter(m => m <= policyEndMonth);
   const numPayouts = cashbackMonths.length;
-  const cashbackAmt = hasCashback ? monthlyTotal * 10 : 0;
+  const cashbackAmt = hasCashback ? roundedMonthlyTotal * 10 : 0;
   const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
