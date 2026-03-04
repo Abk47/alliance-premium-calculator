@@ -785,3 +785,164 @@ input:checked + .slider::before { transform: translateX(20px); }
   position: sticky;
   top: 90px;
 }
+
+/* ── MOBILE ACCESSIBILITY & RESPONSIVE TUNING ───────────────────────────── */
+@media (max-width: 820px) {
+  .wrapper {
+    padding: 1rem 1rem 4.25rem;
+  }
+
+  .header-inner {
+    padding: 0 .9rem;
+    height: auto;
+    min-height: 64px;
+    gap: .65rem;
+  }
+
+  .header-right {
+    gap: .5rem;
+  }
+
+  .pill,
+  .header-date {
+    font-size: .64rem;
+  }
+
+  .hero-band {
+    padding: 1.75rem 1rem 1.35rem;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-content {
+    align-items: flex-start;
+    gap: .8rem;
+  }
+
+  .hero-stat {
+    padding: .6rem .8rem;
+  }
+
+  .hero-stat-val {
+    font-size: 1.2rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: .65rem;
+  }
+
+  .seg {
+    flex-wrap: wrap;
+    gap: .35rem;
+    padding: .35rem;
+  }
+
+  .seg-btn {
+    min-width: calc(50% - .25rem);
+    min-height: 44px;
+    padding: .55rem .45rem;
+    font-size: .82rem;
+  }
+
+  input,
+  select,
+  .btn-calc {
+    min-height: 44px;
+  }
+
+  .btn-calc {
+    padding: .9rem 1rem;
+    font-size: .92rem;
+  }
+
+  .right-col {
+    position: static;
+    top: auto;
+  }
+
+  .result-amount {
+    font-size: 2.15rem;
+  }
+
+  .breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .2rem;
+  }
+
+  .dr-val {
+    text-align: left;
+    word-break: break-word;
+  }
+
+  .cashback-banner {
+    padding: .9rem 1rem;
+  }
+
+  .footer-bar {
+    padding: .9rem .7rem;
+    font-size: .64rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 520px) {
+  .logo-name {
+    font-size: 1rem;
+  }
+
+  .logo-sub {
+    font-size: .6rem;
+    letter-spacing: .08em;
+  }
+
+  .pill {
+    padding: .25rem .6rem;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-desc {
+    font-size: .78rem;
+  }
+
+  .hero-content > div[style] {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hero-stat {
+    flex: 1;
+    min-width: 0;
+    padding: .55rem .45rem;
+  }
+
+  .hero-stat-lbl {
+    font-size: .6rem;
+  }
+
+  .card-header {
+    padding: .8rem .95rem;
+  }
+
+  .card-title {
+    font-size: .68rem;
+  }
+
+  .empty-state {
+    padding: 2.2rem 1rem;
+  }
+}
