@@ -566,9 +566,8 @@ async function downloadPdf() {
 
   const pdfShell = document.createElement('div');
   pdfShell.style.position = 'fixed';
-  pdfShell.style.left = '0';
+  pdfShell.style.left = '-10000px';
   pdfShell.style.top = '0';
-  pdfShell.style.opacity = '0.01';
   pdfShell.style.pointerEvents = 'none';
   pdfShell.style.zIndex = '-1';
   pdfShell.style.width = '760px';
@@ -673,12 +672,7 @@ async function downloadPdf() {
       heightLeft -= printableHeight;
     }
 
-    try {
-      const blobUrl = doc.output('bloburl');
-      window.open(blobUrl, '_blank');
-    } catch (err) {
-      doc.save('quotation.pdf');
-    }
+    doc.save('quotation.pdf');
   } catch (err) {
     console.error('PDF rendering failed', err);
     alert('Failed to generate PDF. Please try again.');
