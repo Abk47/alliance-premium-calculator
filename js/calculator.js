@@ -621,7 +621,7 @@ async function downloadPdf() {
 
   pdfShell.innerHTML = `
     <div style="border:1px solid #cfd2d8;">
-      <div style="padding:10px 12px;text-align:center;font-size:18px;font-weight:800;letter-spacing:.08em;border-bottom:1px solid #cfd2d8;">
+      <div style="padding:10px 12px;text-align:center;font-size:18px;font-weight:800;letter-spacing:.08em;border-bottom:1px solid #cfd2d8;background:linear-gradient(135deg,#000b91 0%,#1a22a8 72%,#ed0800 100%);color:#ffffff;">
         QUOTATION
       </div>
       <div style="display:grid;grid-template-columns: 1fr 180px;">
