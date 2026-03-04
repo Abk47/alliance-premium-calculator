@@ -231,6 +231,20 @@ function getBracket(age) {
   return null;
 }
 
+function getAgeFromDob(dobValue) {
+  if (!dobValue) return null;
+  const dob = new Date(dobValue);
+  if (isNaN(dob.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 function lookupPremium(plan, term, age, sa) {
   // Life Plus uses direct formula: Premium = (SA / 10M) × BaseRate
   if (plan.includes('Life Plus')) {
@@ -322,10 +336,12 @@ function calculate() {
   // hide download link until a fresh result is ready
   if (pdfBtn) pdfBtn.style.display = 'none';
 
-  const age = parseInt(document.getElementById('age').value);
+  const ageEl = document.getElementById('age');
+  const dobRaw = document.getElementById('dob').value;
+  const age = getAgeFromDob(dobRaw);
+  if (ageEl && age != null) ageEl.value = age;
   const plan = document.getElementById('plan').value;
   const term = parseInt(document.getElementById('term').value);
-  const dobRaw = document.getElementById('dob').value;
   const saRaw = document.getElementById('sa').value.replace(/,/g,'');
   const sa = parseFloat(saRaw);
   let wop = document.getElementById('wop').checked;
@@ -373,7 +389,8 @@ function calculate() {
     emptyState.style.display = 'block';
   }
 
-  if (!age || isNaN(age)) { showError('Please enter a date of birth or age.'); return; }
+  if (!dobRaw) { showError('Date of Birth is required.'); return; }
+  if (age == null || isNaN(age)) { showError('Please enter a valid Date of Birth.'); return; }
   if (age < 18 || age > 60) { showError('Age must be between 18 and 60 years old.'); return; }
   if (!sa || isNaN(sa) || sa <= 0) { showError('Please enter a valid Sum Assured amount.'); return; }
   if (plan.includes('Life Plus')) {
