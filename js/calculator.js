@@ -649,7 +649,6 @@ async function downloadPdf() {
             ['Total cash back', `TZS ${fmtNum(q.totalCashback)}`],
             ['Estimated total maturity value', `TZS ${fmtNum(q.maturityValue)}`],
             ['Sum Insured', `TZS ${fmtNum(q.sumAssured)}`],
-            ['Premium', `TZS ${fmtNum(q.monthlyPremium)} (Monthly)`],
             ['Single Cashback', `TZS ${fmtNum(q.singleCashback)}`],
             ["Applicant's Full name", safe(q.clientName || '-')],
             ['Product', safe(q.plan)]
