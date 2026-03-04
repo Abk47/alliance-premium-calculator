@@ -28,6 +28,22 @@ body {
   overflow-x: hidden;
 }
 
+.skip-link {
+  position: absolute;
+  left: 10px;
+  top: -48px;
+  background: var(--blue);
+  color: #fff;
+  padding: .6rem .9rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 1000;
+}
+.skip-link:focus {
+  top: 10px;
+}
+
 /* ── HEADER ──────────────────────────────────────── */
 header {
   background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
@@ -296,6 +312,14 @@ input:focus, select:focus {
   background: var(--white);
   box-shadow: 0 0 0 3px rgba(0,11,145,.1);
 }
+input:focus-visible,
+select:focus-visible,
+.seg-btn:focus-visible,
+.btn-calc:focus-visible,
+.switch input:focus-visible + .slider {
+  outline: 3px solid rgba(0,11,145,.35);
+  outline-offset: 2px;
+}
 input::placeholder { color: #aab0cc; }
 select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23000b91' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -344,6 +368,10 @@ select {
   box-shadow: 0 2px 8px rgba(0,11,145,.3);
 }
 .seg-btn:not(.active):hover { background: var(--blue-soft); color: var(--blue); }
+.seg-btn:focus-visible {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
 
 /* ── TOGGLE SWITCHES ─────────────────────────────── */
 .toggle-row {
@@ -355,7 +383,6 @@ select {
   gap: .75rem;
 }
 .toggle-row:last-child { border-bottom: none; }
-.toggle-info {}
 .toggle-label { font-size: .88rem; color: var(--text); font-weight: 600; }
 .toggle-sub { font-size: .73rem; color: var(--muted); margin-top: .15rem; line-height: 1.4; }
 
@@ -420,6 +447,9 @@ input:checked + .slider::before { transform: translateX(20px); }
 }
 .btn-calc:active { transform: scale(.98) translateY(0); }
 .btn-icon { font-size: 1.1rem; }
+.btn-calc:focus-visible {
+  box-shadow: 0 0 0 4px rgba(0,11,145,.25), 0 8px 30px rgba(237,8,0,.45);
+}
 
 /* ── DIVIDER ─────────────────────────────────────── */
 .divider {
@@ -628,7 +658,6 @@ input:checked + .slider::before { transform: translateX(20px); }
   font-size: 1rem;
   flex-shrink: 0;
 }
-.cb-text {}
 .cb-title {
   font-size: .75rem;
   font-weight: 700;
@@ -756,4 +785,3 @@ input:checked + .slider::before { transform: translateX(20px); }
   position: sticky;
   top: 90px;
 }
-</style>

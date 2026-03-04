@@ -105,8 +105,12 @@ let lastQuoteData = null;
 
 function setMode(m, el) {
   payMode = m;
-  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.seg-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
   el.classList.add('active');
+  el.setAttribute('aria-pressed', 'true');
 }
 
 function syncCashback() {
@@ -387,6 +391,7 @@ function calculate() {
     errDiv.style.display = 'flex';
     result.style.display = 'none';
     emptyState.style.display = 'block';
+    try { errDiv.focus(); } catch (e) {}
   }
 
   if (!dobRaw) { showError('Date of Birth is required.'); return; }
