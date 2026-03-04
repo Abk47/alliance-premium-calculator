@@ -662,21 +662,20 @@ async function downloadPdf() {
         </tbody>
       </table>
 
-      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;line-height:1.4;">
-        I confirm that I have understood the information provided in this quotation.
-      </div>
-
-      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;">
-        <strong>Signature of applicant:</strong> ........................................ (${safe(q.clientName || 'Applicant name')})
-      </div>
-
       <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:12px;line-height:1.45;">
-        <strong>Disclaimer:</strong> Please note the above is calculated based on the assumption that policy data and declared details remain accurate throughout the term.
+        <strong>Data Privacy Notice</strong><br/>
+        Your personal data is processed by Alliance Life Assurance Limited solely for quotation and policy administration purposes, in line with applicable data protection laws. For privacy inquiries, contact: privacy@alliancelife.co.tz | +255 22 210300.
       </div>
 
-      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:12px;line-height:1.45;">
-        <strong>Terms and Conditions</strong><br/>
-        In case of difference between premiums as per the quote, the premiums in the issued policy schedule shall prevail.
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;line-height:1.45;">
+        <strong>Acknowledgement</strong><br/>
+        I confirm that I have received and understood this quotation and data privacy notice.
+      </div>
+
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;line-height:1.7;">
+        <strong>Applicant Signature:</strong> ____________________<br/>
+        <strong>Full Name:</strong> ____________________<br/>
+        <strong>Date:</strong> ____________________
       </div>
     </div>
   `;
