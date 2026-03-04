@@ -1,0 +1,13 @@
+<type>: <short summary>
+
+Why:
+- 
+
+What changed:
+- 
+
+Validation:
+- 
+
+Refs:
+- 
