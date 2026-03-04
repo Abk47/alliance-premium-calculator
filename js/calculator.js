@@ -672,7 +672,15 @@ async function downloadPdf() {
       heightLeft -= printableHeight;
     }
 
-    doc.save('quotation.pdf');
+    try {
+      const blobUrl = doc.output('bloburl');
+      const win = window.open(blobUrl, '_blank');
+      if (!win) {
+        doc.save('quotation.pdf');
+      }
+    } catch (openErr) {
+      doc.save('quotation.pdf');
+    }
   } catch (err) {
     console.error('PDF rendering failed', err);
     alert('Failed to generate PDF. Please try again.');
