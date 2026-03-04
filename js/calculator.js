@@ -543,7 +543,7 @@ function calculate() {
 }
 
 // download the currently displayed quotation as a PDF file
-function downloadPdf() {
+async function downloadPdf() {
   if (!lastQuoteData) {
     alert('Please calculate a quotation before downloading the PDF report.');
     return;
@@ -566,8 +566,11 @@ function downloadPdf() {
 
   const pdfShell = document.createElement('div');
   pdfShell.style.position = 'fixed';
-  pdfShell.style.left = '-99999px';
+  pdfShell.style.left = '0';
   pdfShell.style.top = '0';
+  pdfShell.style.opacity = '0.01';
+  pdfShell.style.pointerEvents = 'none';
+  pdfShell.style.zIndex = '-1';
   pdfShell.style.width = '760px';
   pdfShell.style.background = '#ffffff';
   pdfShell.style.padding = '18px';
@@ -638,29 +641,52 @@ function downloadPdf() {
 
   document.body.appendChild(pdfShell);
 
-  // create document with fallback to simple constructor
-  const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4', putOnlyUsedFonts: true });
+  try {
+    const canvas = await window.html2canvas(pdfShell, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
 
-  doc.html(pdfShell, {
-    x: 20,
-    y: 20,
-    margin: [20,20,20,20],
-    autoPaging: 'text',
-    callback: function (d) {
-      try {
-        const blobUrl = d.output('bloburl');
-        window.open(blobUrl, '_blank');
-      } catch (err) {
-        console.error('Failed to open PDF', err);
-        // fallback to forcing download
-        d.save('quotation.pdf');
-      } finally {
-        if (pdfShell && pdfShell.parentNode) {
-          pdfShell.parentNode.removeChild(pdfShell);
-        }
-      }
+    const imgData = canvas.toDataURL('image/png');
+    const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4', putOnlyUsedFonts: true });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const printableWidth = pageWidth - margin * 2;
+    const printableHeight = pageHeight - margin * 2;
+
+    const imgWidth = printableWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let yPos = margin;
+
+    doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight, undefined, 'FAST');
+    heightLeft -= printableHeight;
+
+    while (heightLeft > 0) {
+      doc.addPage();
+      yPos = margin - (imgHeight - heightLeft);
+      doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= printableHeight;
     }
-  });
+
+    try {
+      const blobUrl = doc.output('bloburl');
+      window.open(blobUrl, '_blank');
+    } catch (err) {
+      doc.save('quotation.pdf');
+    }
+  } catch (err) {
+    console.error('PDF rendering failed', err);
+    alert('Failed to generate PDF. Please try again.');
+  } finally {
+    if (pdfShell && pdfShell.parentNode) {
+      pdfShell.parentNode.removeChild(pdfShell);
+    }
+  }
 }
 
 
