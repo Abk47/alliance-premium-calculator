@@ -121,6 +121,24 @@ function syncCashback() {
   else if (!cb && cur.includes('With cash back')) plan.value = cur.replace('With cash back','No cash back');
 }
 
+function bindUiEventHandlers() {
+  document.querySelectorAll('.seg-btn[data-mode]').forEach((btn) => {
+    btn.addEventListener('click', function () {
+      const mode = this.getAttribute('data-mode');
+      if (mode) setMode(mode, this);
+    });
+  });
+
+  const cashbackToggle = document.getElementById('cashbackToggle');
+  if (cashbackToggle) cashbackToggle.addEventListener('change', syncCashback);
+
+  const calcBtn = document.getElementById('calculateBtn');
+  if (calcBtn) calcBtn.addEventListener('click', calculate);
+
+  const pdfBtn = document.getElementById('downloadPdf');
+  if (pdfBtn) pdfBtn.addEventListener('click', downloadPdf);
+}
+
 document.getElementById('dob').addEventListener('change', function() {
   const dob = new Date(this.value);
   const today = new Date();
@@ -205,6 +223,7 @@ const ageInputEl = document.getElementById('age');
 if (ageInputEl) ageInputEl.addEventListener('input', updatePlanUI);
 // initialise state on load
 updatePlanUI();
+bindUiEventHandlers();
 
 // ─── Sum Assured formatting: show thousand separators while typing ─────────
 const saEl = document.getElementById('sa');
@@ -698,7 +717,10 @@ async function downloadPdf() {
 
     try {
       const blobUrl = doc.output('bloburl');
-      const win = window.open(blobUrl, '_blank');
+      const win = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      if (win) {
+        try { win.opener = null; } catch (e) {}
+      }
       if (!win) {
         doc.save('quotation.pdf');
       }

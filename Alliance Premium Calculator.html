@@ -125,10 +125,10 @@
           <div class="field">
             <label id="modeLabel">Mode of Payment</label>
             <div class="seg" role="group" aria-labelledby="modeLabel">
-              <button type="button" class="seg-btn active" aria-pressed="true" onclick="setMode('monthly',this)">Monthly</button>
-              <button type="button" class="seg-btn" aria-pressed="false" onclick="setMode('quarterly',this)">Quarterly</button>
-              <button type="button" class="seg-btn" aria-pressed="false" onclick="setMode('semi',this)">Semi-Annual</button>
-              <button type="button" class="seg-btn" aria-pressed="false" onclick="setMode('annual',this)">Annual</button>
+              <button type="button" class="seg-btn active" aria-pressed="true" data-mode="monthly">Monthly</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="quarterly">Quarterly</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="semi">Semi-Annual</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="annual">Annual</button>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@
               <div class="toggle-label">Cash Back Benefit</div>
               <div class="toggle-sub">Client receives refund after every 36th premium paid</div>
             </div>
-            <label class="switch"><input type="checkbox" id="cashbackToggle" onchange="syncCashback()" aria-label="Cash Back Benefit" /><span class="slider"></span></label>
+            <label class="switch"><input type="checkbox" id="cashbackToggle" aria-label="Cash Back Benefit" /><span class="slider"></span></label>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@
       <div id="errorMsg" class="error-msg" role="alert" aria-live="assertive" tabindex="-1">⚠️ <span id="errorText"></span></div>
 
       <!-- CTA -->
-      <button type="button" class="btn-calc" onclick="calculate()">
+      <button type="button" id="calculateBtn" class="btn-calc">
         <span class="btn-icon">⚡</span> Calculate Premium
       </button>
 
@@ -185,7 +185,7 @@
             <div class="empty-sub">Complete the client and policy details, then click <strong>Calculate Premium</strong> to generate a full quotation breakdown.</div>
           </div>
           <!-- PDF download button shown after a result is generated -->
-          <button id="downloadPdf" type="button" class="btn-calc" style="display:none;margin-top:1rem;" onclick="downloadPdf()">
+          <button id="downloadPdf" type="button" class="btn-calc" style="display:none;margin-top:1rem;">
             ⬇️ Download PDF
           </button>
         </div>
