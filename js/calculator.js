@@ -101,6 +101,7 @@ const TERM_IDX = {5:0,7:1,10:2,12:3,15:4};
 // ── State ─────────────────────────────────────────────────────────────────────
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
+let lastQuoteData = null;
 
 function setMode(m, el) {
   payMode = m;
@@ -254,6 +255,52 @@ function lookupPremium(plan, term, age, sa) {
 function fmtNum(n) { return Math.round(n).toLocaleString('en-TZ'); }
 function fmt(n)    { return 'TZS ' + fmtNum(n); }
 
+function getPlanType(planName) {
+  if (planName.includes('Education Plan')) return 'Education Plan';
+  if (planName.includes('Life Plus')) return 'Life Plus';
+  return 'Life Plan';
+}
+
+function lookupRevRate(termYears, planType) {
+  // Life Plan / Life Plus = 3.00%, Education Plan = 4.20%
+  return planType === 'Education Plan' ? 0.042 : 0.03;
+}
+
+function lookupTerminalRate(termYears, planType) {
+  // All plans and terms = 50%
+  return 0.5;
+}
+
+function lookupCashbackCount(termYears) {
+  const map = {5:1, 7:2, 10:3, 12:4, 15:5};
+  return map[termYears] || 0;
+}
+
+function computeBonuses(planName, termYears, sumAssured, monthlyPremium) {
+  const planType = getPlanType(planName);
+  const revRate = lookupRevRate(termYears, planType);
+  const totalRevBonus = revRate * termYears * sumAssured;
+
+  const termRate = lookupTerminalRate(termYears, planType);
+  const totalTermBonus = termRate * totalRevBonus;
+
+  const hasCashback = planName.endsWith('With cash back');
+  const singleCashback = hasCashback ? 10 * monthlyPremium : 0;
+  const cashbackCount = lookupCashbackCount(termYears);
+  const totalCashback = cashbackCount * singleCashback;
+
+  const maturityValue = sumAssured + totalRevBonus + totalTermBonus + totalCashback;
+
+  return {
+    totalRevBonus,
+    totalTermBonus,
+    singleCashback,
+    totalCashback,
+    maturityValue,
+    cashbackCount
+  };
+}
+
 // simple helper to escape text before inserting in innerHTML
 function escapeHTML(str) {
   return str.replace(/[&<>"'\/]/g, function (s) {
@@ -278,6 +325,7 @@ function calculate() {
   const age = parseInt(document.getElementById('age').value);
   const plan = document.getElementById('plan').value;
   const term = parseInt(document.getElementById('term').value);
+  const dobRaw = document.getElementById('dob').value;
   const saRaw = document.getElementById('sa').value.replace(/,/g,'');
   const sa = parseFloat(saRaw);
   let wop = document.getElementById('wop').checked;
@@ -379,6 +427,27 @@ function calculate() {
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
   const bracketEnd = bracket === 18 ? 45 : bracket === 46 ? 55 : 60;
+  const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
+
+  lastQuoteData = {
+    clientName: name,
+    dobRaw,
+    age,
+    plan,
+    term,
+    sumAssured: sa,
+    monthlyPremium: monthlyTotal,
+    periodPremium,
+    paymentMode: modeLabel,
+    totalPremiumContribution: totalPremiumsTerm,
+    totalRevBonus: bonusResult.totalRevBonus,
+    totalTermBonus: bonusResult.totalTermBonus,
+    singleCashback: bonusResult.singleCashback,
+    totalCashback: bonusResult.totalCashback,
+    maturityValue: bonusResult.maturityValue,
+    cashbackCount: bonusResult.cashbackCount,
+    quotationDate: new Date()
+  };
 
   emptyState.style.display = 'none';
   result.style.display = 'block';
@@ -475,8 +544,10 @@ function calculate() {
 
 // download the currently displayed quotation as a PDF file
 function downloadPdf() {
-  const content = document.getElementById('resultContent');
-  if (!content) return;
+  if (!lastQuoteData) {
+    alert('Please calculate a quotation before downloading the PDF report.');
+    return;
+  }
 
   const hasJsPdf = !!(window.jspdf && window.jspdf.jsPDF);
   const hasHtml2Canvas = !!window.html2canvas;
@@ -486,10 +557,91 @@ function downloadPdf() {
     return;
   }
 
+  const safe = (value) => escapeHTML(String(value == null ? '' : value));
+  const q = lastQuoteData;
+  const dobText = q.dobRaw ? new Date(q.dobRaw).toLocaleDateString('en-TZ', { day:'2-digit', month:'short', year:'numeric' }) : '-';
+  const quoteDateText = q.quotationDate ? q.quotationDate.toLocaleDateString('en-TZ', { day:'2-digit', month:'short', year:'numeric' }) : new Date().toLocaleDateString('en-TZ');
+  const logoImg = document.querySelector('.logo-shield img');
+  const logoSrc = logoImg ? logoImg.getAttribute('src') : '';
+
+  const pdfShell = document.createElement('div');
+  pdfShell.style.position = 'fixed';
+  pdfShell.style.left = '-99999px';
+  pdfShell.style.top = '0';
+  pdfShell.style.width = '760px';
+  pdfShell.style.background = '#ffffff';
+  pdfShell.style.padding = '18px';
+  pdfShell.style.fontFamily = 'Arial, Helvetica, sans-serif';
+  pdfShell.style.color = '#111111';
+
+  pdfShell.innerHTML = `
+    <div style="border:1px solid #cfd2d8;">
+      <div style="display:grid;grid-template-columns: 1fr 180px;">
+        <div style="padding:10px;border-right:1px solid #cfd2d8;border-bottom:1px solid #cfd2d8;line-height:1.35;">
+          <div style="font-weight:700;">Company Address</div>
+          <div>P. O. Box 11522,</div>
+          <div>5th Floor, Exim Tower, Ghana Avenue,</div>
+          <div>Dar Es Salaam, Tanzania</div>
+          <div>+255 22 210300/01/02/03</div>
+        </div>
+        <div style="padding:10px;border-bottom:1px solid #cfd2d8;display:flex;align-items:center;justify-content:center;">
+          ${logoSrc ? `<img src="${safe(logoSrc)}" alt="Company Logo" style="max-width:150px;max-height:72px;object-fit:contain;" />` : `<div style="font-weight:700;">Company Logo</div>`}
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tbody>
+          ${[
+            ['Quotation Date', quoteDateText],
+            ['Date of Birth', dobText],
+            ['Policy Term', `${safe(q.term)} years`],
+            ['Age', `${safe(q.age)} years`],
+            ['Sum Insured', `TZS ${fmtNum(q.sumAssured)}`],
+            ['Premium', `TZS ${fmtNum(q.periodPremium)} (${safe(q.paymentMode)})`],
+            ['Total premium contribution', `TZS ${fmtNum(q.totalPremiumContribution)}`],
+            ['Estimated reversionary bonus', `TZS ${fmtNum(q.totalRevBonus)}`],
+            ['Estimated Terminal Bonus', `TZS ${fmtNum(q.totalTermBonus)}`],
+            ['Total cash back', `TZS ${fmtNum(q.totalCashback)}`],
+            ['Estimated total maturity value', `TZS ${fmtNum(q.maturityValue)}`],
+            ['Sum Insured', `TZS ${fmtNum(q.sumAssured)}`],
+            ['Premium', `TZS ${fmtNum(q.monthlyPremium)} (Monthly)`],
+            ['Single Cashback', `TZS ${fmtNum(q.singleCashback)}`],
+            ["Applicant's Full name", safe(q.clientName || '-')],
+            ['Product', safe(q.plan)]
+          ].map(([label, value]) => `
+            <tr>
+              <td style="width:42%;border:1px solid #cfd2d8;padding:7px 8px;font-weight:600;">${label}</td>
+              <td style="border:1px solid #cfd2d8;padding:7px 8px;">${value}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;line-height:1.4;">
+        I confirm that I have understood the information provided in this quotation.
+      </div>
+
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:13px;">
+        <strong>Signature of applicant:</strong> ........................................ (${safe(q.clientName || 'Applicant name')})
+      </div>
+
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:12px;line-height:1.45;">
+        <strong>Disclaimer:</strong> Please note the above is calculated based on the assumption that policy data and declared details remain accurate throughout the term.
+      </div>
+
+      <div style="padding:10px;border-top:1px solid #cfd2d8;font-size:12px;line-height:1.45;">
+        <strong>Terms and Conditions</strong><br/>
+        In case of difference between premiums as per the quote, the premiums in the issued policy schedule shall prevail.
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(pdfShell);
+
   // create document with fallback to simple constructor
   const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4', putOnlyUsedFonts: true });
 
-  doc.html(content, {
+  doc.html(pdfShell, {
     x: 20,
     y: 20,
     margin: [20,20,20,20],
@@ -502,6 +654,10 @@ function downloadPdf() {
         console.error('Failed to open PDF', err);
         // fallback to forcing download
         d.save('quotation.pdf');
+      } finally {
+        if (pdfShell && pdfShell.parentNode) {
+          pdfShell.parentNode.removeChild(pdfShell);
+        }
       }
     }
   });
