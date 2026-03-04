@@ -677,6 +677,14 @@ async function downloadPdf() {
         <strong>Full Name:</strong> ____________________<br/>
         <strong>Date:</strong> ____________________
       </div>
+
+      <div style="padding:8px 10px;border-top:1px solid #cfd2d8;font-size:11px;line-height:1.4;">
+        <strong>Disclaimer:</strong> Figures shown are estimates based on information provided at quotation stage and applicable pricing assumptions.
+      </div>
+
+      <div style="padding:8px 10px;border-top:1px solid #cfd2d8;font-size:11px;line-height:1.4;">
+        <strong>Terms and Conditions:</strong> In case of any difference between this quotation and the final issued policy schedule, the policy schedule shall prevail.
+      </div>
     </div>
   `;
 
@@ -698,21 +706,16 @@ async function downloadPdf() {
     const printableWidth = pageWidth - margin * 2;
     const printableHeight = pageHeight - margin * 2;
 
-    const imgWidth = printableWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const widthScale = printableWidth / canvas.width;
+    const heightScale = printableHeight / canvas.height;
+    const fitScale = Math.min(widthScale, heightScale);
 
-    let heightLeft = imgHeight;
-    let yPos = margin;
+    const imgWidth = canvas.width * fitScale;
+    const imgHeight = canvas.height * fitScale;
+    const x = margin + (printableWidth - imgWidth) / 2;
+    const y = margin + (printableHeight - imgHeight) / 2;
 
-    doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight, undefined, 'FAST');
-    heightLeft -= printableHeight;
-
-    while (heightLeft > 0) {
-      doc.addPage();
-      yPos = margin - (imgHeight - heightLeft);
-      doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= printableHeight;
-    }
+    doc.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
 
     try {
       const blobUrl = doc.output('bloburl');
