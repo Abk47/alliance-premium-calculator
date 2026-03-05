@@ -101,12 +101,46 @@ const TERM_IDX = {5:0,7:1,10:2,12:3,15:4};
 // ── State ─────────────────────────────────────────────────────────────────────
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
-const FIXED_SUM_ASSURED_VALUES = new Set([
-  5000000,7500000,10000000,12500000,15000000,17500000,20000000,25000000,30000000,
-  35000000,40000000,45000000,50000000,55000000,60000000,65000000,70000000,75000000,
-  80000000,85000000,90000000,95000000,100000000
-]);
 let lastQuoteData = null;
+
+function getAllowedSumAssuredValues(plan, term) {
+  if (!plan || plan.includes('Life Plus')) return [];
+  const termMap = RATES[plan]?.[term];
+  if (!termMap) return [];
+  const values = new Set();
+  Object.values(termMap).forEach((bracketTable) => {
+    Object.keys(bracketTable || {}).forEach((sa) => values.add(Number(sa)));
+  });
+  return [...values].sort((a, b) => a - b);
+}
+
+function setSumAssuredDropdownOptions(plan, term) {
+  const saSelectEl = document.getElementById('saSelect');
+  if (!saSelectEl) return;
+
+  const currentValue = saSelectEl.value;
+  const allowedValues = getAllowedSumAssuredValues(plan, term);
+
+  saSelectEl.innerHTML = '';
+
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = 'Select Sum Assured';
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
+  saSelectEl.appendChild(placeholderOption);
+
+  allowedValues.forEach((value) => {
+    const option = document.createElement('option');
+    option.value = String(value);
+    option.textContent = value.toLocaleString('en-TZ');
+    saSelectEl.appendChild(option);
+  });
+
+  if (currentValue && allowedValues.includes(Number(currentValue))) {
+    saSelectEl.value = currentValue;
+  }
+}
 
 function setMode(m, el) {
   payMode = m;
@@ -159,6 +193,7 @@ document.getElementById('dob').addEventListener('change', function() {
 function updatePlanUI() {
   const planEl = document.getElementById('plan');
   const planVal = planEl.value;
+  const termVal = parseInt(document.getElementById('term').value);
 
   // WOP behaviour
   const isLifePlus = planVal.includes('Life Plus');
@@ -193,6 +228,7 @@ function updatePlanUI() {
     } else {
       saEl.style.display = 'none';
       if (saSelectEl) saSelectEl.style.display = '';
+      setSumAssuredDropdownOptions(planVal, termVal);
       saEl.dataset.min = '5000000';
       saEl.placeholder = 'e.g. 5,000,000';
     }
@@ -228,6 +264,7 @@ function updatePlanUI() {
 }
 
 document.getElementById('plan').addEventListener('change', updatePlanUI);
+document.getElementById('term').addEventListener('change', updatePlanUI);
 // refresh UI when age input changes too (so terms update immediately)
 const ageInputEl = document.getElementById('age');
 if (ageInputEl) ageInputEl.addEventListener('input', updatePlanUI);
@@ -445,7 +482,8 @@ function calculate() {
       showError('Sum Assured must be between 5,000,000 and 100,000,000 for the selected plan.');
       return;
     }
-    if (!FIXED_SUM_ASSURED_VALUES.has(sa)) {
+    const allowedValues = getAllowedSumAssuredValues(plan, term);
+    if (!allowedValues.includes(sa)) {
       showError('Sum Assured must be one of the allowed values (5M, 7.5M, 10M,...,100M).');
       return;
     }
