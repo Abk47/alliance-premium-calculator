@@ -432,6 +432,7 @@ function calculate() {
   if (!dobRaw) { showError('Date of Birth is required.'); return; }
   if (age == null || isNaN(age)) { showError('Please enter a valid Date of Birth.'); return; }
   if (age < 18 || age > 60) { showError('Age must be between 18 and 60 years old.'); return; }
+  if (!isLifePlus && !saRaw) { showError('Please select a Sum Assured amount.'); return; }
   if (!sa || isNaN(sa) || sa <= 0) { showError('Please enter a valid Sum Assured amount.'); return; }
   if (isLifePlus) {
     if (sa < 60000000 || sa > 1000000000) {

@@ -122,7 +122,8 @@
             <div class="field">
               <label class="label-required" for="sa">Sum Assured (TZS)</label>
               <input type="text" id="sa" inputmode="numeric" placeholder="e.g. 5,000,000" data-step="500000" data-min="5000000" required aria-required="true" />
-              <select id="saSelect" aria-label="Sum Assured (TZS)" style="display:none;">
+              <select id="saSelect" aria-label="Sum Assured (TZS)" required aria-required="true" style="display:none;">
+                <option value="" selected disabled>Select Sum Assured</option>
                 <option value="5000000">5,000,000</option>
                 <option value="7500000">7,500,000</option>
                 <option value="10000000">10,000,000</option>
