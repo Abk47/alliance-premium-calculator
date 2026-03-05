@@ -692,7 +692,7 @@ input:checked + .slider::before { transform: translateX(20px); }
   padding: .75rem 1.1rem;
   border-bottom: 1px solid var(--off-white);
   cursor: pointer;
-  transition: background .18s ease, border-color .18s ease;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .alt-row:last-child {
@@ -701,6 +701,15 @@ input:checked + .slider::before { transform: translateX(20px); }
 
 .alt-row:hover {
   background: rgba(0,11,145,.035);
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .alt-row:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .alt-row:focus-visible {
