@@ -847,6 +847,10 @@ input:checked + .slider::before { transform: translateX(20px); }
     margin-bottom: 0;
   }
 
+  .field-row + .field {
+    margin-top: .25rem;
+  }
+
   .toggle-row {
     padding: .85rem 0;
   }
