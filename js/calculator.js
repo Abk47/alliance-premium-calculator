@@ -179,12 +179,8 @@ function bindUiEventHandlers() {
 }
 
 document.getElementById('dob').addEventListener('change', function() {
-  const dob = new Date(this.value);
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
-  document.getElementById('age').value = age;
+  const age = getAgeFromDob(this.value);
+  document.getElementById('age').value = age == null ? '' : age;
   // refresh UI constraints that depend on age
   if (typeof updatePlanUI === 'function') updatePlanUI();
 });
@@ -339,6 +335,21 @@ function lookupPremium(plan, term, age, sa) {
 function fmtNum(n) { return Math.round(n).toLocaleString('en-TZ'); }
 function fmt(n)    { return 'TZS ' + fmtNum(n); }
 
+const UI_MESSAGES = {
+  dobRequired: 'Date of Birth is required.',
+  dobInvalid: 'Please enter a valid Date of Birth.',
+  ageRange: 'Age must be between 18 and 60 years old.',
+  saSelectRequired: 'Please select a Sum Assured amount.',
+  saInvalid: 'Please enter a valid Sum Assured amount.',
+  saLifePlusRange: 'Sum Assured for Life Plus must be between 60,000,000 and 1,000,000,000.',
+  saPlanRange: 'Sum Assured must be between 5,000,000 and 100,000,000 for the selected plan.',
+  saAllowedValues: 'Sum Assured must be one of the allowed values (5M, 7.5M, 10M,...,100M).',
+  noRateFound: 'No rate found for this combination. Check that the sum assured is within the valid range for this plan and term.',
+  pdfNeedQuote: 'Please calculate a quotation before downloading the PDF report.',
+  pdfLibsMissing: 'PDF generation libraries are unavailable. Please ensure jsPDF and html2canvas are reachable.',
+  pdfFailed: 'Failed to generate PDF. Please try again.'
+};
+
 function getPlanType(planName) {
   if (planName.includes('Education Plan')) return 'Education Plan';
   if (planName.includes('Life Plus')) return 'Life Plus';
@@ -401,7 +412,6 @@ function calculate() {
   const emptyState = document.getElementById('emptyState');
   const result = document.getElementById('result');
   const pdfBtn = document.getElementById('downloadPdf');
-  if (!pdfBtn) console.warn('calculate(): pdfBtn element not found');
 
   errDiv.style.display = 'none';
   // hide download link until a fresh result is ready
@@ -466,31 +476,30 @@ function calculate() {
     try { errDiv.focus(); } catch (e) {}
   }
 
-  if (!dobRaw) { showError('Date of Birth is required.'); return; }
-  if (age == null || isNaN(age)) { showError('Please enter a valid Date of Birth.'); return; }
-  if (age < 18 || age > 60) { showError('Age must be between 18 and 60 years old.'); return; }
-  if (!isLifePlus && !saRaw) { showError('Please select a Sum Assured amount.'); return; }
-  if (!sa || isNaN(sa) || sa <= 0) { showError('Please enter a valid Sum Assured amount.'); return; }
+  if (!dobRaw) { showError(UI_MESSAGES.dobRequired); return; }
+  if (age == null || isNaN(age)) { showError(UI_MESSAGES.dobInvalid); return; }
+  if (age < 18 || age > 60) { showError(UI_MESSAGES.ageRange); return; }
+  if (!isLifePlus && !saRaw) { showError(UI_MESSAGES.saSelectRequired); return; }
+  if (!sa || isNaN(sa) || sa <= 0) { showError(UI_MESSAGES.saInvalid); return; }
   if (isLifePlus) {
     if (sa < 60000000 || sa > 1000000000) {
-      showError('Sum Assured for Life Plus must be between 60,000,000 and 1,000,000,000.');
+      showError(UI_MESSAGES.saLifePlusRange);
       return;
     }
   } else {
     // Life Plan & Education Plan limits
     if (sa < 5000000 || sa > 100000000) {
-      showError('Sum Assured must be between 5,000,000 and 100,000,000 for the selected plan.');
+      showError(UI_MESSAGES.saPlanRange);
       return;
     }
     const allowedValues = getAllowedSumAssuredValues(plan, term);
     if (!allowedValues.includes(sa)) {
-      showError('Sum Assured must be one of the allowed values (5M, 7.5M, 10M,...,100M).');
+      showError(UI_MESSAGES.saAllowedValues);
       return;
     }
   }
 
   const bracket = getBracket(age);
-  if (!bracket) { showError('Age is outside the eligible range (18–60).'); return; }
 
   const wopIdx = TERM_IDX[term];
   let wopRate = 0;
@@ -500,7 +509,7 @@ function calculate() {
   }
 
   const basePremium = lookupPremium(plan, term, age, sa);
-  if (!basePremium) { showError('No rate found for this combination. Check that the sum assured is within the valid range for this plan and term.'); return; }
+  if (!basePremium) { showError(UI_MESSAGES.noRateFound); return; }
 
   const wopAddon = wop ? basePremium * wopRate : 0;
   const monthlyTotal = basePremium + wopAddon;
@@ -637,7 +646,7 @@ function calculate() {
 // download the currently displayed quotation as a PDF file
 async function downloadPdf() {
   if (!lastQuoteData) {
-    alert('Please calculate a quotation before downloading the PDF report.');
+    alert(UI_MESSAGES.pdfNeedQuote);
     return;
   }
 
@@ -645,7 +654,7 @@ async function downloadPdf() {
   const hasHtml2Canvas = !!window.html2canvas;
   if (!hasJsPdf || !hasHtml2Canvas) {
     console.warn('PDF libraries missing', { jsPDF: hasJsPdf, html2canvas: hasHtml2Canvas });
-    alert('PDF generation libraries are unavailable. Please ensure jsPDF and html2canvas are reachable.');
+    alert(UI_MESSAGES.pdfLibsMissing);
     return;
   }
 
@@ -700,7 +709,6 @@ async function downloadPdf() {
             ['Estimated Terminal Bonus', `TZS ${fmtNum(q.totalTermBonus)}`],
             ['Total cash back', `TZS ${fmtNum(q.totalCashback)}`],
             ['Estimated total maturity value', `TZS ${fmtNum(q.maturityValue)}`],
-            ['Sum Insured', `TZS ${fmtNum(q.sumAssured)}`],
             ['Single Cashback', `TZS ${fmtNum(q.singleCashback)}`],
             ["Applicant's Full name", safe(q.clientName || '-')],
             ['Product', safe(q.plan)]
@@ -782,7 +790,7 @@ async function downloadPdf() {
     }
   } catch (err) {
     console.error('PDF rendering failed', err);
-    alert('Failed to generate PDF. Please try again.');
+    alert(UI_MESSAGES.pdfFailed);
   } finally {
     if (pdfShell && pdfShell.parentNode) {
       pdfShell.parentNode.removeChild(pdfShell);
