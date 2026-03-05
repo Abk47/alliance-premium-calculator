@@ -479,7 +479,7 @@ function calculate() {
   const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
-  const modePremiumLabel = payMode === 'monthly' ? 'Total Monthly Premium' : `${modeLabel} Premium`;
+  const modePremiumLabel = `Total ${modeLabel} Premium`;
   const bracketEnd = bracket === 18 ? 45 : bracket === 46 ? 55 : 60;
   const bonusResult = computeBonuses(plan, term, sa, periodPremium);
 
