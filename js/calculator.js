@@ -530,7 +530,7 @@ function calculate() {
 
       <div class="breakdown-grid">
         <div class="breakdown-cell">
-          <div class="bc-lbl">Monthly Base</div>
+          <div class="bc-lbl">Basic Premium</div>
           <div class="bc-val">TZS ${fmtNum(basePremium)}</div>
         </div>
         <div class="breakdown-cell">
@@ -539,7 +539,7 @@ function calculate() {
         </div>
         ${wop ? `
         <div class="breakdown-cell">
-          <div class="bc-lbl">WOP Rider / mo</div>
+          <div class="bc-lbl">WOP Rider Premium</div>
           <div class="bc-val">TZS ${fmtNum(wopAddon)}</div>
         </div>` : ''}
         <div class="breakdown-cell">
