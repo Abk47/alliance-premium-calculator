@@ -519,26 +519,17 @@ function escapeHTML(str) {
 }
 
 function scrollToQuotationSummary() {
-  const target =
-    document.querySelector('.right-col .card-header') ||
-    document.querySelector('.right-col') ||
-    document.getElementById('result');
-  if (!target) return;
+  const quotationCard = document.querySelector('.right-col');
+  if (!quotationCard) return;
 
-  const headerEl = document.querySelector('header');
-  const headerOffset = (headerEl ? headerEl.getBoundingClientRect().height : 0) + 10;
-  const rect = target.getBoundingClientRect();
-
-  const comfortablyVisible =
-    rect.top >= headerOffset &&
-    rect.top <= Math.max(headerOffset + 24, window.innerHeight * 0.25);
-  if (comfortablyVisible) return;
+  const rect = quotationCard.getBoundingClientRect();
+  const alreadyInView = rect.top >= 0 && rect.top <= (window.innerHeight * 0.4);
+  if (alreadyInView) return;
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const top = Math.max(0, window.scrollY + rect.top - headerOffset);
-  window.scrollTo({
-    top,
-    behavior: prefersReducedMotion ? 'auto' : 'smooth'
+  quotationCard.scrollIntoView({
+    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    block: 'start'
   });
 }
 
