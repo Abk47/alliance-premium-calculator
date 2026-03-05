@@ -835,7 +835,12 @@ input:checked + .slider::before { transform: translateX(20px); }
 
   .field-row {
     grid-template-columns: 1fr;
-    gap: .65rem;
+    gap: 1.15rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .field-row .field {
+    margin-bottom: 0;
   }
 
   .seg {
