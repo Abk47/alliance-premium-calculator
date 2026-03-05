@@ -833,14 +833,22 @@ input:checked + .slider::before { transform: translateX(20px); }
     padding: 1rem;
   }
 
+  .field {
+    margin-bottom: 1rem;
+  }
+
   .field-row {
     grid-template-columns: 1fr;
-    gap: 1.15rem;
-    margin-bottom: 1.15rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   .field-row .field {
     margin-bottom: 0;
+  }
+
+  .toggle-row {
+    padding: .85rem 0;
   }
 
   .seg {
