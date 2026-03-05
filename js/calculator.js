@@ -542,7 +542,7 @@ function calculate() {
           <div class="bc-val">TZS ${fmtNum(wopAddon)}</div>
         </div>` : ''}
         <div class="breakdown-cell">
-          <div class="bc-lbl">Total Premium Payable (${term} Years)</div>
+          <div class="bc-lbl">Premium Payable (${term} Years)</div>
           <div class="bc-val">TZS ${fmtNum(totalPremiumsTerm)}</div>
         </div>
       </div>
