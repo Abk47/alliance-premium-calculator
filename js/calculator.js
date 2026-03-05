@@ -579,7 +579,7 @@ function calculate() {
         <div class="cb-milestones">
           ${cashbackMonths.map((month, idx) => `<div class="cb-mile"><span class="cb-mile-num">${idx + 1}</span><span>After ${month} contributions</span></div>`).join('')}
         </div>
-        <div class="cb-sub">Each payout = 10× the displayed premium of TZS ${fmtNum(roundedPeriodPremium)}</div>
+        <div class="cb-sub">Each payout = 10× the monthly premium of TZS ${fmtNum(roundedPeriodPremium)}</div>
       </div>
     </div>` : ''}
   `;
