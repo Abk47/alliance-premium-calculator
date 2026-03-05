@@ -8,6 +8,19 @@
   document.addEventListener('DOMContentLoaded', applyDate);
 })();
 
+// Keep page starting position at top after refresh/navigation restore
+(function resetScrollOnLoad() {
+  try {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  } catch (e) {}
+
+  const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  window.addEventListener('load', toTop);
+  window.addEventListener('pageshow', toTop);
+})();
+
 // Ensure DOM is ready before accessing other elements
 document.addEventListener('DOMContentLoaded', function () {
   // ─── Date in header (kept for backwards-compatibility)
