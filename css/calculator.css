@@ -480,10 +480,11 @@ input:checked + .slider::before { transform: translateX(20px); }
 
 .result-hero {
   background: var(--blue);
-  border-radius: var(--radius) var(--radius) 0 0;
+  border-radius: var(--radius);
   padding: 2rem 1.8rem 1.5rem;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 .result-hero::before {
   content: '';
@@ -571,7 +572,10 @@ input:checked + .slider::before { transform: translateX(20px); }
   grid-template-columns: 1fr 1fr;
   gap: 1px;
   background: var(--slate);
-  border-top: 1px solid var(--slate);
+  border: 1px solid var(--slate);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 .breakdown-cell {
   background: var(--white);
@@ -604,9 +608,9 @@ input:checked + .slider::before { transform: translateX(20px); }
 /* detail rows */
 .detail-rows {
   background: var(--white);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius);
   border: 1px solid var(--slate);
-  border-top: none;
+  box-shadow: var(--shadow-sm);
 }
 .detail-row {
   display: flex;
@@ -630,6 +634,106 @@ input:checked + .slider::before { transform: translateX(20px); }
 }
 .dr-val.good { color: var(--blue); }
 
+.alt-coverage {
+  margin-top: 1rem;
+  border: 1px solid var(--slate);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #ffffff 0%, #f9faff 100%);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.alt-coverage-head {
+  background: var(--blue);
+  padding: .9rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+
+.alt-coverage-head-top {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.alt-coverage-text {
+  display: grid;
+  gap: .16rem;
+}
+
+.alt-coverage-icon {
+  flex-shrink: 0;
+}
+
+.alt-coverage-title {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.9);
+}
+
+.alt-coverage-sub {
+  margin-top: 0;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.7);
+}
+
+.alt-coverage-list {
+  display: grid;
+}
+
+.alt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1.1rem;
+  border-bottom: 1px solid var(--off-white);
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.alt-row:last-child {
+  border-bottom: none;
+}
+
+.alt-row:hover {
+  background: rgba(0,11,145,.035);
+}
+
+.alt-row:focus-visible {
+  outline: 2px solid rgba(0,11,145,.35);
+  outline-offset: -2px;
+  background: rgba(0,11,145,.05);
+}
+
+.alt-sa,
+.alt-premium {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: .6rem;
+  font-size: .82rem;
+  color: var(--text);
+}
+
+.alt-label {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.alt-value {
+  font-weight: 650;
+  color: var(--text);
+}
+
+.alt-value-accent {
+  color: var(--blue);
+}
+
 /* cashback banner */
 .cashback-banner {
   background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
@@ -642,6 +746,8 @@ input:checked + .slider::before { transform: translateX(20px); }
   position: relative;
   overflow: hidden;
   animation: fadeIn .4s ease both;
+  border: 1px solid rgba(0,11,145,.2);
+  box-shadow: var(--shadow-sm);
 }
 .cashback-banner::before {
   content: '';
@@ -774,9 +880,8 @@ input:checked + .slider::before { transform: translateX(20px); }
 
 /* ── RESULT CARD WRAPPER ─────────────────────────── */
 .result-wrapper {
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  display: grid;
+  gap: .9rem;
   animation: slideUp .4s ease both;
 }
 
@@ -907,6 +1012,18 @@ input:checked + .slider::before { transform: translateX(20px); }
     padding: .9rem 1rem;
   }
 
+  .alt-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .2rem;
+  }
+
+  .alt-sa,
+  .alt-premium {
+    justify-content: space-between;
+    width: 100%;
+  }
+
   .footer-bar {
     padding: .9rem .7rem;
     font-size: .64rem;
@@ -940,6 +1057,7 @@ input:checked + .slider::before { transform: translateX(20px); }
     width: 100%;
     justify-content: space-between;
   }
+
 
   .hero-stat {
     flex: 1;

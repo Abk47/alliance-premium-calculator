@@ -176,6 +176,27 @@ function bindUiEventHandlers() {
 
   const pdfBtn = document.getElementById('downloadPdf');
   if (pdfBtn) pdfBtn.addEventListener('click', downloadPdf);
+
+  const resultContent = document.getElementById('resultContent');
+  if (resultContent) {
+    resultContent.addEventListener('click', function (event) {
+      const row = event.target.closest('.alt-row[data-coverage]');
+      if (!row) return;
+      const coverageValue = parseFloat(row.getAttribute('data-coverage'));
+      if (isNaN(coverageValue) || coverageValue <= 0) return;
+      applyAlternativeCoverageOption(coverageValue);
+    });
+
+    resultContent.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const row = event.target.closest('.alt-row[data-coverage]');
+      if (!row) return;
+      event.preventDefault();
+      const coverageValue = parseFloat(row.getAttribute('data-coverage'));
+      if (isNaN(coverageValue) || coverageValue <= 0) return;
+      applyAlternativeCoverageOption(coverageValue);
+    });
+  }
 }
 
 document.getElementById('dob').addEventListener('change', function() {
@@ -397,6 +418,98 @@ function computeBonuses(planName, termYears, sumAssured, premiumForCashback) {
   };
 }
 
+function getAlternativeCoverageOptions(plan, term, age, currentSa, wopEnabled, wopRate, selectedPayMode) {
+  const modeFactor = MODE_FACTORS[selectedPayMode] || 1;
+  let candidateSas = [];
+
+  if (plan.includes('Life Plus')) {
+    const minSa = 60000000;
+    const maxSa = 1000000000;
+    const step = 10000000;
+    candidateSas = [currentSa - step, currentSa + step, currentSa + (step * 2)]
+      .filter((value) => value >= minSa && value <= maxSa && value !== currentSa);
+  } else {
+    const allowedValues = getAllowedSumAssuredValues(plan, term);
+    const currentIdx = allowedValues.indexOf(currentSa);
+    if (currentIdx === -1) return [];
+    const nearby = [
+      allowedValues[currentIdx - 1],
+      allowedValues[currentIdx + 1],
+      allowedValues[currentIdx - 2],
+      allowedValues[currentIdx + 2]
+    ].filter((value) => value != null && value !== currentSa);
+    candidateSas = [...new Set(nearby)].slice(0, 3);
+  }
+
+  return candidateSas
+    .map((sumAssuredValue) => {
+      const base = lookupPremium(plan, term, age, sumAssuredValue);
+      if (!base) return null;
+      const wopAddonValue = wopEnabled ? base * wopRate : 0;
+      const modePremiumValue = (base + wopAddonValue) * modeFactor;
+      return {
+        sumAssured: sumAssuredValue,
+        modePremium: modePremiumValue
+      };
+    })
+    .filter(Boolean);
+}
+
+function renderAlternativeCoverageHtml(options, modeLabel) {
+  if (!options.length) return '';
+
+  return `
+    <div class="alt-coverage">
+      <div class="alt-coverage-head">
+        <div class="alt-coverage-head-top">
+          <div class="card-icon alt-coverage-icon" aria-hidden="true">✨</div>
+          <div class="alt-coverage-text">
+            <div class="alt-coverage-title">Alternative Coverage Options</div>
+            <div class="alt-coverage-sub">Quick comparison by Sum Assured and ${modeLabel.toLowerCase()} premium</div>
+          </div>
+        </div>
+      </div>
+      <div class="alt-coverage-list">
+        ${options.map((option) => `
+          <div class="alt-row" role="button" tabindex="0" data-coverage="${option.sumAssured}" aria-label="Apply coverage TZS ${fmtNum(option.sumAssured)}">
+            <div class="alt-sa">
+              <span class="alt-label">Coverage</span>
+              <span class="alt-value">TZS ${fmtNum(option.sumAssured)}</span>
+            </div>
+            <div class="alt-premium">
+              <span class="alt-label">${modeLabel} Premium</span>
+              <span class="alt-value alt-value-accent">TZS ${fmtNum(option.modePremium)}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function applyAlternativeCoverageOption(sumAssuredValue) {
+  const plan = document.getElementById('plan').value;
+  const isLifePlus = plan.includes('Life Plus');
+  const saInputEl = document.getElementById('sa');
+  const saSelectEl = document.getElementById('saSelect');
+
+  if (isLifePlus) {
+    if (saInputEl) saInputEl.value = fmtNum(sumAssuredValue);
+  } else if (saSelectEl) {
+    const targetValue = String(sumAssuredValue);
+    let option = [...saSelectEl.options].find((item) => item.value === targetValue);
+    if (!option) {
+      option = document.createElement('option');
+      option.value = targetValue;
+      option.textContent = fmtNum(sumAssuredValue);
+      saSelectEl.appendChild(option);
+    }
+    saSelectEl.value = targetValue;
+  }
+
+  calculate();
+}
+
 // simple helper to escape text before inserting in innerHTML
 function escapeHTML(str) {
   return str.replace(/[&<>"'\/]/g, function (s) {
@@ -527,8 +640,9 @@ function calculate() {
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
   const modePremiumLabel = `Total ${modeLabel} Premium`;
-  const bracketEnd = bracket === 18 ? 45 : bracket === 46 ? 55 : 60;
   const bonusResult = computeBonuses(plan, term, sa, periodPremium);
+  const alternativeCoverageOptions = getAlternativeCoverageOptions(plan, term, age, sa, wop, wopRate, payMode);
+  const alternativeCoverageHtml = renderAlternativeCoverageHtml(alternativeCoverageOptions, modeLabel);
 
   lastQuoteData = {
     clientName: name,
@@ -594,38 +708,17 @@ function calculate() {
           <div class="bc-lbl">Premium Payable (${term} Years)</div>
           <div class="bc-val">TZS ${fmtNum(totalPremiumsTerm)}</div>
         </div>
+        <div class="breakdown-cell">
+          <div class="bc-lbl">Plan</div>
+          <div class="bc-val">${plan}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="bc-lbl">Sum Assured</div>
+          <div class="bc-val">TZS ${fmtNum(sa)}</div>
+        </div>
       </div>
 
-      <div class="detail-rows">
-        <div class="detail-row">
-          <span class="dr-key">Plan</span>
-          <span class="dr-val good">${plan}</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Sum Assured</span>
-          <span class="dr-val">TZS ${fmtNum(sa)}</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Policy Term</span>
-          <span class="dr-val">${term} Years</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Age / Bracket</span>
-          <span class="dr-val">${age} yrs · Age ${bracket}–${bracketEnd}</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Payment Mode</span>
-          <span class="dr-val">${modeLabel}</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Waiver of Premium</span>
-          <span class="dr-val">${wop ? `Yes - ${(wopRate*100).toFixed(1)}% of base` : 'Not included'}</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-key">Cash Back</span>
-          <span class="dr-val">${hasCashback ? `${numPayouts} payout${numPayouts > 1 ? 's' : ''} at month${numPayouts > 1 ? 's' : ''} ${cashbackMonths.join(', ')}` : 'Not included'}</span>
-        </div>
-      </div>
+      ${alternativeCoverageHtml}
     </div>
 
     ${hasCashback ? `
