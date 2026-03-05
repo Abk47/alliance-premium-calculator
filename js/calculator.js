@@ -101,6 +101,11 @@ const TERM_IDX = {5:0,7:1,10:2,12:3,15:4};
 // ── State ─────────────────────────────────────────────────────────────────────
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
+const FIXED_SUM_ASSURED_VALUES = new Set([
+  5000000,7500000,10000000,12500000,15000000,17500000,20000000,25000000,30000000,
+  35000000,40000000,45000000,50000000,55000000,60000000,65000000,70000000,75000000,
+  80000000,85000000,90000000,95000000,100000000
+]);
 let lastQuoteData = null;
 
 function setMode(m, el) {
@@ -178,11 +183,16 @@ function updatePlanUI() {
 
   // adjust sum assured constraints / hints for Life Plus
   const saEl = document.getElementById('sa');
+  const saSelectEl = document.getElementById('saSelect');
   if (saEl) {
     if (isLifePlus) {
+      saEl.style.display = '';
+      if (saSelectEl) saSelectEl.style.display = 'none';
       saEl.dataset.min = '60000000';
       saEl.placeholder = 'e.g. 60,000,000 - 1,000,000,000';
     } else {
+      saEl.style.display = 'none';
+      if (saSelectEl) saSelectEl.style.display = '';
       saEl.dataset.min = '5000000';
       saEl.placeholder = 'e.g. 5,000,000';
     }
@@ -366,7 +376,12 @@ function calculate() {
   if (ageEl && age != null) ageEl.value = age;
   const plan = document.getElementById('plan').value;
   const term = parseInt(document.getElementById('term').value);
-  const saRaw = document.getElementById('sa').value.replace(/,/g,'');
+  const isLifePlus = plan.includes('Life Plus');
+  const saInputEl = document.getElementById('sa');
+  const saSelectEl = document.getElementById('saSelect');
+  const saRaw = isLifePlus
+    ? (saInputEl ? saInputEl.value.replace(/,/g,'') : '')
+    : (saSelectEl ? saSelectEl.value : '');
   const sa = parseFloat(saRaw);
   let wop = document.getElementById('wop').checked;
   const hasCashback = plan.includes('With cash back');
@@ -418,7 +433,7 @@ function calculate() {
   if (age == null || isNaN(age)) { showError('Please enter a valid Date of Birth.'); return; }
   if (age < 18 || age > 60) { showError('Age must be between 18 and 60 years old.'); return; }
   if (!sa || isNaN(sa) || sa <= 0) { showError('Please enter a valid Sum Assured amount.'); return; }
-  if (plan.includes('Life Plus')) {
+  if (isLifePlus) {
     if (sa < 60000000 || sa > 1000000000) {
       showError('Sum Assured for Life Plus must be between 60,000,000 and 1,000,000,000.');
       return;
@@ -429,13 +444,7 @@ function calculate() {
       showError('Sum Assured must be between 5,000,000 and 100,000,000 for the selected plan.');
       return;
     }
-    // ensure SA matches valid increments (multiples of 2.5M from 5M up to 100M)
-    const validIncrements = new Set([
-      5000000,7500000,10000000,12500000,15000000,17500000,20000000,25000000,30000000,
-      35000000,40000000,45000000,50000000,55000000,60000000,65000000,70000000,75000000,
-      80000000,85000000,90000000,95000000,100000000
-    ]);
-    if (!validIncrements.has(sa)) {
+    if (!FIXED_SUM_ASSURED_VALUES.has(sa)) {
       showError('Sum Assured must be one of the allowed values (5M, 7.5M, 10M,...,100M).');
       return;
     }
