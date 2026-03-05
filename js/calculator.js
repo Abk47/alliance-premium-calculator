@@ -818,19 +818,21 @@ async function downloadPdf() {
         <tbody>
           ${[
             ['Quotation Date', quoteDateText],
-            ['Date of Birth', dobText],
-            ['Policy Term', `${safe(q.term)} years`],
+            ["Client's Full name", safe(q.clientName || 'Not provided')],
             ['Age', `${safe(q.age)} years`],
-            ['Sum Insured', `TZS ${fmtNum(q.sumAssured)}`],
+            ['Date of Birth', dobText],
+            ['Product', safe(q.plan)],
+            ['Payment Mode', safe(q.paymentMode)],
+            ['Policy Term', `${safe(q.term)} years`],
+            ['Sum Assured', `TZS ${fmtNum(q.sumAssured)}`],
+           
             ['Premium', `TZS ${fmtNum(q.periodPremium)} (${safe(q.paymentMode)})`],
-            ['Total premium contribution', `TZS ${fmtNum(q.totalPremiumContribution)}`],
-            ['Estimated reversionary bonus', `TZS ${fmtNum(q.totalRevBonus)}`],
-            ['Estimated Terminal Bonus', `TZS ${fmtNum(q.totalTermBonus)}`],
-            ['Total cash back', `TZS ${fmtNum(q.totalCashback)}`],
-            ['Estimated total maturity value', `TZS ${fmtNum(q.maturityValue)}`],
             ['Single Cashback', `TZS ${fmtNum(q.singleCashback)}`],
-            ["Applicant's Full name", safe(q.clientName || '-')],
-            ['Product', safe(q.plan)]
+            ['Total cash back', `TZS ${fmtNum(q.totalCashback)}`],
+            ['Total Premium Payable (' + safe(q.term) + ' Years)', `TZS ${fmtNum(q.totalPremiumContribution)}`],
+            ['Estimated Reversionary Bonus', `TZS ${fmtNum(q.totalRevBonus)}`],
+            ['Estimated Terminal Bonus', `TZS ${fmtNum(q.totalTermBonus)}`],
+            ['Estimated Maturity Value', `<strong>TZS ${fmtNum(q.maturityValue)}</strong>`]
           ].map(([label, value]) => `
             <tr>
               <td style="width:42%;border:1px solid #cfd2d8;padding:7px 8px;font-weight:600;">${label}</td>
