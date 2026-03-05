@@ -518,6 +518,21 @@ function escapeHTML(str) {
   });
 }
 
+function scrollToQuotationSummary() {
+  const quotationCard = document.querySelector('.right-col');
+  if (!quotationCard) return;
+
+  const rect = quotationCard.getBoundingClientRect();
+  const alreadyInView = rect.top >= 0 && rect.top <= (window.innerHeight * 0.4);
+  if (alreadyInView) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  quotationCard.scrollIntoView({
+    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    block: 'start'
+  });
+}
+
 function calculate() {
   const errDiv = document.getElementById('errorMsg');
   const errTxt = document.getElementById('errorText');
@@ -734,6 +749,8 @@ function calculate() {
       </div>
     </div>` : ''}
   `;
+
+  setTimeout(scrollToQuotationSummary, 50);
 }
 
 // download the currently displayed quotation as a PDF file
@@ -773,7 +790,7 @@ async function downloadPdf() {
   pdfShell.innerHTML = `
     <div style="border:1px solid #cfd2d8;">
       <div style="padding:10px 12px;text-align:center;font-size:18px;font-weight:800;letter-spacing:.08em;border-bottom:1px solid #cfd2d8;background:linear-gradient(135deg,#000b91 0%,#1a22a8 72%,#ed0800 100%);color:#ffffff;">
-        QUOTATION
+        <div>Life Insurance Premium Quotation</div>
       </div>
       <div style="display:grid;grid-template-columns: 1fr 180px;">
         <div style="padding:10px;border-right:1px solid #cfd2d8;border-bottom:1px solid #cfd2d8;line-height:1.35;">
