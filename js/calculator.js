@@ -479,6 +479,7 @@ function calculate() {
   const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
+  const modePremiumLabel = payMode === 'monthly' ? 'Total Monthly Premium' : `${modeLabel} Premium`;
   const bracketEnd = bracket === 18 ? 45 : bracket === 46 ? 55 : 60;
   const bonusResult = computeBonuses(plan, term, sa, periodPremium);
 
@@ -517,7 +518,7 @@ function calculate() {
       <div class="result-hero">
         <div class="geo"></div>
         ${name ? `<div class="for-name">Prepared for ${name}</div>` : ''}
-        <div class="result-mode-lbl">${modeLabel} Premium</div>
+        <div class="result-mode-lbl">${modePremiumLabel}</div>
         <div class="result-amount">
           <span class="result-amount-currency">TZS</span>${fmtNum(periodPremium)}
         </div>
