@@ -504,6 +504,13 @@ input:checked + .slider::before { transform: translateX(20px); }
 }
 .btn-calc:active { transform: scale(.98) translateY(0); }
 .btn-icon { font-size: 1.1rem; }
+.btn-icon-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: inline-block;
+  flex-shrink: 0;
+}
 .btn-calc:focus-visible {
   box-shadow: 0 0 0 4px rgba(0,11,145,.25), 0 8px 30px rgba(237,8,0,.45);
 }
