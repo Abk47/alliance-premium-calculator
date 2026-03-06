@@ -907,11 +907,11 @@ function calculate() {
   result.style.display = 'block';
   if (pdfBtn) {
     try {
-      if (checkPdfAvailability()) pdfBtn.style.display = 'block';
+      if (checkPdfAvailability()) pdfBtn.style.display = 'flex';
       else pdfBtn.style.display = 'none';
     } catch (e) { pdfBtn.style.display = 'none'; }
   }
-  if (whatsappBtn) whatsappBtn.style.display = 'block';
+  if (whatsappBtn) whatsappBtn.style.display = 'flex';
 
   // assembly of result markup is mostly fixed values; name has already been escaped
   contentDiv.innerHTML = `
