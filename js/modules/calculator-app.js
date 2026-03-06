@@ -405,6 +405,47 @@ function lookupPremium(plan, term, age, sa) {
 function fmtNum(n) { return Math.round(n).toLocaleString('en-TZ'); }
 function fmt(n)    { return 'TZS ' + fmtNum(n); }
 
+function animateNumberTransitions(container) {
+  if (!container) return;
+  const targets = container.querySelectorAll('[data-animate-number]');
+  if (!targets.length) return;
+
+  const prefersReducedMotion = (() => {
+    try {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  targets.forEach((el) => {
+    const endValue = Number(el.getAttribute('data-animate-number'));
+    if (!Number.isFinite(endValue)) return;
+
+    const prefix = el.getAttribute('data-prefix') || '';
+    const duration = 520;
+
+    if (prefersReducedMotion) {
+      el.textContent = `${prefix}${fmtNum(endValue)}`;
+      return;
+    }
+
+    const start = performance.now();
+    const startValue = 0;
+
+    const step = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = startValue + (endValue - startValue) * eased;
+      el.textContent = `${prefix}${fmtNum(current)}`;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
+  });
+}
+
 const UI_MESSAGES = {
   dobRequired: 'Date of Birth is required.',
   dobInvalid: 'Please enter a valid Date of Birth.',
@@ -880,7 +921,7 @@ function calculate() {
         ${name ? `<div class="for-name">Prepared for ${name}</div>` : ''}
         <div class="result-mode-lbl">${modePremiumLabel}</div>
         <div class="result-amount">
-          <span class="result-amount-currency">TZS</span>${fmtNum(periodPremium)}
+          <span class="result-amount-currency">TZS</span><span data-animate-number="${Math.round(periodPremium)}">${fmtNum(periodPremium)}</span>
         </div>
         <div class="result-period-tag">
           <span class="dot"></span>
@@ -892,20 +933,20 @@ function calculate() {
       <div class="breakdown-grid">
         <div class="breakdown-cell">
           <div class="bc-lbl">Basic Premium</div>
-          <div class="bc-val">TZS ${fmtNum(basePremium)}</div>
+          <div class="bc-val" data-animate-number="${Math.round(basePremium)}" data-prefix="TZS ">TZS ${fmtNum(basePremium)}</div>
         </div>
         <div class="breakdown-cell">
           <div class="bc-lbl">Annual Premium</div>
-          <div class="bc-val">TZS ${fmtNum(annualPremium)}</div>
+          <div class="bc-val" data-animate-number="${Math.round(annualPremium)}" data-prefix="TZS ">TZS ${fmtNum(annualPremium)}</div>
         </div>
         ${wop ? `
         <div class="breakdown-cell">
           <div class="bc-lbl">WOP Rider Premium</div>
-          <div class="bc-val">TZS ${fmtNum(wopAddon)}</div>
+          <div class="bc-val" data-animate-number="${Math.round(wopAddon)}" data-prefix="TZS ">TZS ${fmtNum(wopAddon)}</div>
         </div>` : ''}
         <div class="breakdown-cell">
           <div class="bc-lbl">Premium Payable (${term} Years)</div>
-          <div class="bc-val">TZS ${fmtNum(totalPremiumsTerm)}</div>
+          <div class="bc-val" data-animate-number="${Math.round(totalPremiumsTerm)}" data-prefix="TZS ">TZS ${fmtNum(totalPremiumsTerm)}</div>
         </div>
         <div class="breakdown-cell">
           <div class="bc-lbl">Plan</div>
@@ -913,7 +954,7 @@ function calculate() {
         </div>
         <div class="breakdown-cell">
           <div class="bc-lbl">Sum Assured</div>
-          <div class="bc-val">TZS ${fmtNum(sa)}</div>
+          <div class="bc-val" data-animate-number="${Math.round(sa)}" data-prefix="TZS ">TZS ${fmtNum(sa)}</div>
         </div>
       </div>
 
@@ -933,6 +974,8 @@ function calculate() {
       </div>
     </div>` : ''}
   `;
+
+  animateNumberTransitions(contentDiv);
 
   setTimeout(scrollToQuotationSummary, 50);
 }
