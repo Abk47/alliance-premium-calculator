@@ -216,6 +216,9 @@
           <button id="downloadPdf" type="button" class="btn-calc" style="display:none;margin-top:1rem;">
             ⬇️ Download PDF
           </button>
+          <button id="sendWhatsapp" type="button" class="btn-calc btn-whatsapp" style="display:none;margin-top:.75rem;">
+            💬 Send via WhatsApp
+          </button>
         </div>
       </div>
     </div>
@@ -226,6 +229,22 @@
 <!-- FOOTER -->
 <div class="footer-bar">
   Alliance Life Assurance Limited · Internal Retail Calculator · <span>Confidential</span>
+</div>
+
+<div id="whatsappModal" class="wa-modal" role="dialog" aria-modal="true" aria-labelledby="waModalTitle" style="display:none;">
+  <div class="wa-modal-card">
+    <div class="wa-modal-title" id="waModalTitle">Send via WhatsApp</div>
+    <div class="wa-modal-sub">Enter customer WhatsApp number in this format: 255XXXXXXXXX</div>
+    <div class="wa-modal-field">
+      <label for="waPhoneInput">Customer Number</label>
+      <input id="waPhoneInput" type="tel" inputmode="numeric" placeholder="255XXXXXXXXX" maxlength="12" />
+      <div id="waPhoneError" class="wa-modal-error" aria-live="polite"></div>
+    </div>
+    <div class="wa-modal-actions">
+      <button id="waCancelBtn" type="button" class="btn-calc wa-btn wa-btn-secondary">Cancel</button>
+      <button id="waConfirmBtn" type="button" class="btn-calc wa-btn wa-btn-primary">Open WhatsApp</button>
+    </div>
+  </div>
 </div>
 
 <!-- NOTE: For stronger security in production add Subresource Integrity (SRI) hashes
