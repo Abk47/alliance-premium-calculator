@@ -451,6 +451,120 @@ input:checked + .slider::before { transform: translateX(20px); }
   box-shadow: 0 0 0 4px rgba(0,11,145,.25), 0 8px 30px rgba(237,8,0,.45);
 }
 
+.btn-whatsapp {
+  background: var(--blue);
+  box-shadow: 0 6px 24px rgba(0,11,145,.35);
+}
+
+.btn-whatsapp:hover {
+  background: var(--blue-dark);
+  box-shadow: 0 8px 30px rgba(0,11,145,.45);
+}
+
+.wa-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 30, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.wa-modal-card {
+  width: min(460px, 100%);
+  background: #fff;
+  border: 1px solid var(--slate);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+}
+
+.wa-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--blue);
+}
+
+.wa-modal-sub {
+  margin-top: .4rem;
+  font-size: .86rem;
+  color: var(--text-light);
+}
+
+.wa-modal-field {
+  margin-top: .85rem;
+}
+
+.wa-modal-field label {
+  display: block;
+  margin-bottom: .45rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.wa-modal-field input {
+  width: 100%;
+  border: 1.5px solid var(--slate);
+  border-radius: 10px;
+  padding: .75rem .8rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: .96rem;
+}
+
+.wa-modal-field input:focus-visible {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,11,145,.16);
+}
+
+.wa-modal-error {
+  min-height: 1.1rem;
+  margin-top: .38rem;
+  font-size: .82rem;
+  color: var(--red);
+}
+
+.wa-modal-actions {
+  margin-top: .9rem;
+  display: flex;
+  gap: .65rem;
+}
+
+.wa-btn {
+  margin-top: 0;
+  width: 50%;
+  text-transform: none;
+  letter-spacing: .01em;
+}
+
+.wa-btn-secondary {
+  background: #fff;
+  color: var(--text);
+  border: 1.5px solid var(--slate);
+  box-shadow: none;
+}
+
+.wa-btn-secondary:hover {
+  background: #f7f8fb;
+  box-shadow: none;
+}
+
+.wa-btn-primary {
+  background: var(--blue);
+  box-shadow: 0 6px 24px rgba(0,11,145,.35);
+}
+
+.wa-btn-primary:hover {
+  background: var(--blue-dark);
+  box-shadow: 0 8px 30px rgba(0,11,145,.45);
+}
+
 /* ── DIVIDER ─────────────────────────────────────── */
 .divider {
   height: 1px;

@@ -60,6 +60,10 @@ const { RATES, LIFE_PLUS_BASE_RATES, WOP, TERM_IDX } = window.CalculatorData || 
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
 let lastQuoteData = null;
+let whatsappLaunchInProgress = false;
+let whatsappLastSubmitAt = 0;
+let whatsappModalSessionId = 0;
+let whatsappLastSentSessionId = -1;
 
 function getAllowedSumAssuredValues(plan, term) {
   if (!plan || plan.includes('Life Plus')) return [];
@@ -134,6 +138,45 @@ function bindUiEventHandlers() {
 
   const pdfBtn = document.getElementById('downloadPdf');
   if (pdfBtn) pdfBtn.addEventListener('click', downloadPdf);
+
+  const whatsappBtn = document.getElementById('sendWhatsapp');
+  if (whatsappBtn && whatsappBtn.dataset.boundClick !== '1') {
+    whatsappBtn.addEventListener('click', openWhatsappModal);
+    whatsappBtn.dataset.boundClick = '1';
+  }
+
+  const waCancelBtn = document.getElementById('waCancelBtn');
+  if (waCancelBtn && waCancelBtn.dataset.boundClick !== '1') {
+    waCancelBtn.addEventListener('click', closeWhatsappModal);
+    waCancelBtn.dataset.boundClick = '1';
+  }
+
+  const waConfirmBtn = document.getElementById('waConfirmBtn');
+  if (waConfirmBtn && waConfirmBtn.dataset.boundClick !== '1') {
+    waConfirmBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      sendViaWhatsapp();
+    });
+    waConfirmBtn.dataset.boundClick = '1';
+  }
+
+  const waPhoneInput = document.getElementById('waPhoneInput');
+  if (waPhoneInput && waPhoneInput.dataset.boundKeydown !== '1') {
+    waPhoneInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+    });
+    waPhoneInput.dataset.boundKeydown = '1';
+  }
+
+  const waModal = document.getElementById('whatsappModal');
+  if (waModal && waModal.dataset.boundClick !== '1') {
+    waModal.addEventListener('click', function (event) {
+      if (event.target === waModal) closeWhatsappModal();
+    });
+    waModal.dataset.boundClick = '1';
+  }
 
   const resultContent = document.getElementById('resultContent');
   if (resultContent) {
@@ -326,8 +369,131 @@ const UI_MESSAGES = {
   noRateFound: 'No rate found for this combination. Check that the sum assured is within the valid range for this plan and term.',
   pdfNeedQuote: 'Please calculate a quotation before downloading the PDF report.',
   pdfLibsMissing: 'PDF generation libraries are unavailable. Please ensure jsPDF and html2canvas are reachable.',
-  pdfFailed: 'Failed to generate PDF. Please try again.'
+  pdfFailed: 'Failed to generate PDF. Please try again.',
+  whatsappNeedQuote: 'Please calculate a quotation before sending via WhatsApp.',
+  whatsappPhoneInvalid: 'Please enter a valid customer number in this format: 255XXXXXXXXX.'
 };
+
+function isValidWhatsappNumber(phoneNumber) {
+  return /^255\d{9}$/.test(phoneNumber);
+}
+
+function buildWhatsappMessage(quote) {
+  const coverLabel = quote.plan && quote.plan.includes('Education Plan') ? 'Education Cover' : 'Life Cover';
+
+  return [
+    'Hello,',
+    '',
+    'I’ve prepared your life insurance quotation from Alliance Life.',
+    '',
+    `*Product:* ${quote.plan}`,
+    `*Policy Term:* ${quote.term} Years`,
+    `*${coverLabel}:* TZS ${fmtNum(quote.sumAssured)}`,
+    `*Monthly Premium:* TZS ${fmtNum(quote.monthlyPremium)}`,
+    '',
+    `*Estimated Maturity Value:* TZS ${fmtNum(quote.maturityValue)}`,
+    '',
+    'This plan helps protect your family while also building value that you can benefit from over the policy term.',
+    '',
+    '_*Disclaimer:* The maturity value shown is an estimate based on current declared bonus rates and is not guaranteed. Final benefits are subject to policy terms and future bonus declarations._',
+    '',
+    'Please feel free to let me know if you’d like to proceed or if you would like me to adjust the coverage or premium to better fit your needs.'
+  ].join('\n');
+}
+
+function closeWhatsappModal() {
+  const modal = document.getElementById('whatsappModal');
+  const errEl = document.getElementById('waPhoneError');
+  const waConfirmBtn = document.getElementById('waConfirmBtn');
+  if (errEl) errEl.textContent = '';
+  if (waConfirmBtn) waConfirmBtn.disabled = false;
+  if (modal) modal.style.display = 'none';
+  whatsappLaunchInProgress = false;
+}
+
+function openWhatsappModal() {
+  if (!lastQuoteData) {
+    alert(UI_MESSAGES.whatsappNeedQuote);
+    return;
+  }
+
+  const modal = document.getElementById('whatsappModal');
+  const input = document.getElementById('waPhoneInput');
+  const errEl = document.getElementById('waPhoneError');
+  const waConfirmBtn = document.getElementById('waConfirmBtn');
+  if (errEl) errEl.textContent = '';
+  if (waConfirmBtn) waConfirmBtn.disabled = false;
+  whatsappLaunchInProgress = false;
+  whatsappModalSessionId += 1;
+  if (input && !input.value) input.value = '255';
+  if (modal) modal.style.display = 'flex';
+  if (input) {
+    try { input.focus(); } catch (e) {}
+  }
+}
+
+function sendViaWhatsapp() {
+  const nowGlobal = Date.now();
+  const lastGlobalSubmitAt = Number(window.__allianceWaSubmitAt || 0);
+  if (nowGlobal - lastGlobalSubmitAt < 1000) return;
+  window.__allianceWaSubmitAt = nowGlobal;
+
+  const now = Date.now();
+  if (now - whatsappLastSubmitAt < 300) return;
+  whatsappLastSubmitAt = now;
+
+  if (whatsappLastSentSessionId === whatsappModalSessionId) return;
+
+  if (whatsappLaunchInProgress) return;
+
+  if (!lastQuoteData) {
+    alert(UI_MESSAGES.whatsappNeedQuote);
+    return;
+  }
+
+  const input = document.getElementById('waPhoneInput');
+  const errEl = document.getElementById('waPhoneError');
+  const waConfirmBtn = document.getElementById('waConfirmBtn');
+  const rawValue = input ? input.value : '';
+  const normalizedNumber = String(rawValue || '').replace(/\D/g, '');
+
+  if (!isValidWhatsappNumber(normalizedNumber)) {
+    if (errEl) errEl.textContent = UI_MESSAGES.whatsappPhoneInvalid;
+    if (input) {
+      try { input.focus(); } catch (e) {}
+    }
+    return;
+  }
+
+  whatsappLaunchInProgress = true;
+  whatsappLastSentSessionId = whatsappModalSessionId;
+  if (waConfirmBtn) waConfirmBtn.disabled = true;
+
+  if (errEl) errEl.textContent = '';
+  const message = buildWhatsappMessage(lastQuoteData);
+  const whatsappUrl = `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(message)}`;
+
+  try {
+    const win = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (!win && errEl) {
+      errEl.textContent = 'Popup blocked. Please allow popups and try again.';
+      whatsappLaunchInProgress = false;
+      if (waConfirmBtn) waConfirmBtn.disabled = false;
+      whatsappLastSentSessionId = -1;
+      return;
+    }
+  } catch (e) {
+    if (errEl) {
+      errEl.textContent = 'Unable to open WhatsApp. Please try again.';
+    }
+    whatsappLaunchInProgress = false;
+    if (waConfirmBtn) waConfirmBtn.disabled = false;
+    whatsappLastSentSessionId = -1;
+    return;
+  }
+
+  closeWhatsappModal();
+}
 
 function getPlanType(planName) {
   if (planName.includes('Education Plan')) return 'Education Plan';
@@ -507,10 +673,12 @@ function calculate() {
   const emptyState = document.getElementById('emptyState');
   const result = document.getElementById('result');
   const pdfBtn = document.getElementById('downloadPdf');
+  const whatsappBtn = document.getElementById('sendWhatsapp');
 
   errDiv.style.display = 'none';
   // hide download link until a fresh result is ready
   if (pdfBtn) pdfBtn.style.display = 'none';
+  if (whatsappBtn) whatsappBtn.style.display = 'none';
 
   const ageEl = document.getElementById('age');
   const dobRaw = document.getElementById('dob').value;
@@ -654,6 +822,7 @@ function calculate() {
       else pdfBtn.style.display = 'none';
     } catch (e) { pdfBtn.style.display = 'none'; }
   }
+  if (whatsappBtn) whatsappBtn.style.display = 'block';
 
   // assembly of result markup is mostly fixed values; name has already been escaped
   contentDiv.innerHTML = `
