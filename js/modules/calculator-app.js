@@ -64,6 +64,47 @@ let whatsappLaunchInProgress = false;
 let whatsappLastSubmitAt = 0;
 let whatsappModalSessionId = 0;
 let whatsappLastSentSessionId = -1;
+const THEME_STORAGE_KEY = 'alliance-theme';
+
+function applyTheme(theme) {
+  const body = document.body;
+  if (!body) return;
+  const toggleBtn = document.getElementById('themeToggle');
+  const isDark = theme === 'dark';
+  body.classList.toggle('dark-mode', isDark);
+  if (toggleBtn) {
+    toggleBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+    toggleBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  }
+}
+
+function getPreferredTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+  } catch (e) {}
+
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+  } catch (e) {}
+
+  return 'light';
+}
+
+function initTheme() {
+  applyTheme(getPreferredTheme());
+}
+
+function toggleTheme() {
+  const isDark = document.body && document.body.classList.contains('dark-mode');
+  const nextTheme = isDark ? 'light' : 'dark';
+  applyTheme(nextTheme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+  } catch (e) {}
+}
 
 function getAllowedSumAssuredValues(plan, term) {
   if (!plan || plan.includes('Life Plus')) return [];
@@ -138,6 +179,12 @@ function bindUiEventHandlers() {
 
   const pdfBtn = document.getElementById('downloadPdf');
   if (pdfBtn) pdfBtn.addEventListener('click', downloadPdf);
+
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle && themeToggle.dataset.boundClick !== '1') {
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.dataset.boundClick = '1';
+  }
 
   const whatsappBtn = document.getElementById('sendWhatsapp');
   if (whatsappBtn && whatsappBtn.dataset.boundClick !== '1') {
@@ -288,6 +335,7 @@ const ageInputEl = document.getElementById('age');
 if (ageInputEl) ageInputEl.addEventListener('input', updatePlanUI);
 // initialise state on load
 updatePlanUI();
+initTheme();
 bindUiEventHandlers();
 
 // ─── Sum Assured formatting: show thousand separators while typing ─────────
