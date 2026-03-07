@@ -505,11 +505,24 @@ input:checked + .slider::before { transform: translateX(20px); }
 .btn-calc:active { transform: scale(.98) translateY(0); }
 .btn-icon { font-size: 1.1rem; }
 .btn-icon-img {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
+
+#sendWhatsapp .btn-icon {
+  display: inline-flex;
+  align-items: flex-end;
+  line-height: 1;
+  transform: translateY(3px);
+}
+
+#sendWhatsapp .btn-icon-img {
   width: 16px;
   height: 16px;
-  object-fit: contain;
-  display: inline-block;
-  flex-shrink: 0;
+  transform: none;
 }
 .btn-calc:focus-visible {
   box-shadow: 0 0 0 4px rgba(0,11,145,.25), 0 8px 30px rgba(237,8,0,.45);
@@ -1408,6 +1421,13 @@ body.dark-mode .footer-bar {
   select,
   .btn-calc {
     min-height: 44px;
+  }
+
+  /* Prevent iOS Safari from auto-zooming focused form controls. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
   }
 
   .btn-calc {
