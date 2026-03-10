@@ -605,7 +605,7 @@ function lookupCashbackCount(termYears) {
   return map[termYears] || 0;
 }
 
-function computeBonuses(planName, termYears, sumAssured, premiumForCashback) {
+function computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashback) {
   const planType = getPlanType(planName);
   const revRate = lookupRevRate(termYears, planType);
   const totalRevBonus = revRate * termYears * sumAssured;
@@ -614,7 +614,7 @@ function computeBonuses(planName, termYears, sumAssured, premiumForCashback) {
   const totalTermBonus = termRate * totalRevBonus;
 
   const hasCashback = planName.endsWith('With cash back');
-  const roundedPremiumForCashback = Math.round(premiumForCashback);
+  const roundedPremiumForCashback = Math.round(monthlyPremiumForCashback);
   const singleCashback = hasCashback ? 10 * roundedPremiumForCashback : 0;
   const cashbackCount = lookupCashbackCount(termYears);
   const totalCashback = cashbackCount * singleCashback;
@@ -869,17 +869,18 @@ function calculate() {
   const modeLabels = {monthly:'Monthly', quarterly:'Quarterly', semi:'Semi-Annual', annual:'Annual'};
   const periodPremium = monthlyTotal * modeFactor;
   const annualPremium = monthlyTotal * 12;
+  const roundedMonthlyPremium = Math.round(monthlyTotal);
   const roundedPeriodPremium = Math.round(periodPremium);
   // Cashback = 10× monthly premium, paid every 36 contributions within policy term
   const policyEndMonth = term * 12;
   const cashbackMonths = [36, 72, 108, 144, 180].filter(m => m <= policyEndMonth);
   const numPayouts = cashbackMonths.length;
-  const cashbackAmt = hasCashback ? roundedPeriodPremium * 10 : 0;
+  const cashbackAmt = hasCashback ? roundedMonthlyPremium * 10 : 0;
   const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
   const modePremiumLabel = `Total ${modeLabel} Premium`;
-  const bonusResult = computeBonuses(plan, term, sa, periodPremium);
+  const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
   const alternativeCoverageOptions = getAlternativeCoverageOptions(plan, term, age, sa, wop, wopRate, payMode);
   const alternativeCoverageHtml = renderAlternativeCoverageHtml(alternativeCoverageOptions, modeLabel);
 
@@ -970,7 +971,7 @@ function calculate() {
         <div class="cb-milestones">
           ${cashbackMonths.map((month, idx) => `<div class="cb-mile"><span class="cb-mile-num">${idx + 1}</span><span>After ${month} contributions</span></div>`).join('')}
         </div>
-        <div class="cb-sub">Each payout = 10× the monthly premium of TZS ${fmtNum(roundedPeriodPremium)}</div>
+        <div class="cb-sub">Each payout = 10× the monthly premium of TZS ${fmtNum(roundedMonthlyPremium)}</div>
       </div>
     </div>` : ''}
   `;
