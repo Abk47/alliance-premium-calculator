@@ -1,6 +1,8 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const { execSync } = require('child_process');
 
 const htmlPath = path.resolve(__dirname, '..', 'Alliance Premium Calculator.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
@@ -42,8 +44,14 @@ test('Script dependencies include SRI and crossorigin', () => {
     const re = new RegExp(`<script[^>]*src="${escaped}"[^>]*>\\s*</script>`, 'i');
     const tag = html.match(re);
     assert.ok(tag, `Missing script tag for ${src}`);
-    assert.ok(/integrity="sha384-[A-Za-z0-9+/=]+"/i.test(tag[0]), `Missing/invalid SRI for ${src}`);
+    const integrityMatch = tag[0].match(/integrity="(sha384-[A-Za-z0-9+/=]+)"/i);
+    assert.ok(integrityMatch, `Missing/invalid SRI for ${src}`);
     assert.ok(/crossorigin="anonymous"/i.test(tag[0]), `Missing crossorigin for ${src}`);
+
+    const expectedIntegrity = integrityMatch[1];
+    const blob = execSync(`git show HEAD:${src}`, { encoding: 'buffer' });
+    const actualIntegrity = `sha384-${crypto.createHash('sha384').update(blob).digest('base64')}`;
+    assert.strictEqual(expectedIntegrity, actualIntegrity, `SRI mismatch for ${src}`);
   });
 });
 
