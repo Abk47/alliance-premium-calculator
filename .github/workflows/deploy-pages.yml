@@ -29,6 +29,12 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Sync SRI hashes
+        run: node scripts/sri.js --write
+
+      - name: Verify SRI hashes
+        run: node scripts/sri.js --check
+
       - name: Run regression tests
         run: node tests/regression.test.js
 

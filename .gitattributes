@@ -1,0 +1,10 @@
+# Normalize text files and enforce LF for web/source assets to keep SRI stable across environments.
+* text=auto
+
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
