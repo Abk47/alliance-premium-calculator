@@ -584,51 +584,22 @@ function sendViaWhatsapp() {
   closeWhatsappModal();
 }
 
-function getPlanType(planName) {
-  if (planName.includes('Education Plan')) return 'Education Plan';
-  if (planName.includes('Life Plus')) return 'Life Plus';
-  return 'Life Plan';
-}
-
-function lookupRevRate(termYears, planType) {
-  // Life Plan / Life Plus = 3.00%, Education Plan = 4.20%
-  return planType === 'Education Plan' ? 0.042 : 0.03;
-}
-
-function lookupTerminalRate(termYears, planType) {
-  // All plans and terms = 50%
-  return 0.5;
-}
-
-function lookupCashbackCount(termYears) {
-  const map = {5:1, 7:2, 10:3, 12:4, 15:5};
-  return map[termYears] || 0;
-}
-
 function computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashback) {
-  const planType = getPlanType(planName);
-  const revRate = lookupRevRate(termYears, planType);
-  const totalRevBonus = revRate * termYears * sumAssured;
+  if (window.CalculatorMath && typeof window.CalculatorMath.computeBonuses === 'function') {
+    return window.CalculatorMath.computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashback);
+  }
 
-  const termRate = lookupTerminalRate(termYears, planType);
-  const totalTermBonus = termRate * totalRevBonus;
-
-  const hasCashback = planName.endsWith('With cash back');
+  const hasCashback = String(planName || '').endsWith('With cash back');
   const roundedPremiumForCashback = Math.round(monthlyPremiumForCashback);
   const singleCashback = hasCashback ? 10 * roundedPremiumForCashback : 0;
-  const cashbackCount = lookupCashbackCount(termYears);
+  const cashbackCount = ({ 5: 1, 7: 2, 10: 3, 12: 4, 15: 5 })[termYears] || 0;
   const totalCashback = cashbackCount * singleCashback;
-
+  const revRate = String(planName || '').includes('Education Plan') ? 0.042 : 0.03;
+  const totalRevBonus = revRate * termYears * sumAssured;
+  const totalTermBonus = 0.5 * totalRevBonus;
   const maturityValue = sumAssured + totalRevBonus + totalTermBonus + totalCashback;
 
-  return {
-    totalRevBonus,
-    totalTermBonus,
-    singleCashback,
-    totalCashback,
-    maturityValue,
-    cashbackCount
-  };
+  return { totalRevBonus, totalTermBonus, singleCashback, totalCashback, maturityValue, cashbackCount };
 }
 
 function getAlternativeCoverageOptions(plan, term, age, currentSa, wopEnabled, wopRate, selectedPayMode) {
@@ -871,16 +842,15 @@ function calculate() {
   const annualPremium = monthlyTotal * 12;
   const roundedMonthlyPremium = Math.round(monthlyTotal);
   const roundedPeriodPremium = Math.round(periodPremium);
+  const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
   // Cashback = 10× monthly premium, paid every 36 contributions within policy term
-  const policyEndMonth = term * 12;
-  const cashbackMonths = [36, 72, 108, 144, 180].filter(m => m <= policyEndMonth);
-  const numPayouts = cashbackMonths.length;
-  const cashbackAmt = hasCashback ? roundedMonthlyPremium * 10 : 0;
-  const totalCashback = hasCashback ? cashbackAmt * numPayouts : 0;
+  const numPayouts = bonusResult.cashbackCount;
+  const cashbackMonths = [36, 72, 108, 144, 180].slice(0, numPayouts);
+  const cashbackAmt = hasCashback ? bonusResult.singleCashback : 0;
+  const totalCashback = hasCashback ? bonusResult.totalCashback : 0;
   const totalPremiumsTerm = monthlyTotal * 12 * term;
   const modeLabel = modeLabels[payMode];
   const modePremiumLabel = `Total ${modeLabel} Premium`;
-  const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
   const alternativeCoverageOptions = getAlternativeCoverageOptions(plan, term, age, sa, wop, wopRate, payMode);
   const alternativeCoverageHtml = renderAlternativeCoverageHtml(alternativeCoverageOptions, modeLabel);
 
