@@ -228,6 +228,13 @@ function bindUiEventHandlers() {
   const resultContent = document.getElementById('resultContent');
   if (resultContent) {
     resultContent.addEventListener('click', function (event) {
+      const projectionToggle = event.target.closest('.projection-toggle-btn');
+      if (projectionToggle) {
+        event.preventDefault();
+        toggleProjectionPanel();
+        return;
+      }
+
       const row = event.target.closest('.alt-row[data-coverage]');
       if (!row) return;
       const coverageValue = parseFloat(row.getAttribute('data-coverage'));
@@ -236,6 +243,13 @@ function bindUiEventHandlers() {
     });
 
     resultContent.addEventListener('keydown', function (event) {
+      const projectionToggle = event.target.closest('.projection-toggle-btn');
+      if (projectionToggle && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        toggleProjectionPanel();
+        return;
+      }
+
       if (event.key !== 'Enter' && event.key !== ' ') return;
       const row = event.target.closest('.alt-row[data-coverage]');
       if (!row) return;
@@ -671,6 +685,111 @@ function renderAlternativeCoverageHtml(options, modeLabel) {
   `;
 }
 
+function buildProjectionSeries(termYears, totalPremiumsTerm, maturityValue) {
+  const points = [];
+  const safeTerm = Math.max(1, Number(termYears) || 1);
+
+  for (let year = 1; year <= safeTerm; year += 1) {
+    const progress = year / safeTerm;
+    points.push({
+      year,
+      premiumPaid: (totalPremiumsTerm / safeTerm) * year,
+      estimatedBenefit: maturityValue * progress
+    });
+  }
+
+  return points;
+}
+
+function toPolylinePoints(values, maxValue, width, height, leftPad, topPad, rightPad, bottomPad) {
+  const usableWidth = width - leftPad - rightPad;
+  const usableHeight = height - topPad - bottomPad;
+  const steps = Math.max(1, values.length - 1);
+
+  return values.map((value, index) => {
+    const x = leftPad + (usableWidth * (index / steps));
+    const y = topPad + usableHeight - ((Math.max(0, value) / maxValue) * usableHeight);
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+}
+
+function renderProjectionHtml(termYears, totalPremiumsTerm, maturityValue) {
+  const series = buildProjectionSeries(termYears, totalPremiumsTerm, maturityValue);
+  const premiumValues = series.map((item) => item.premiumPaid);
+  const benefitValues = series.map((item) => item.estimatedBenefit);
+
+  const width = 560;
+  const height = 260;
+  const leftPad = 44;
+  const topPad = 16;
+  const rightPad = 12;
+  const bottomPad = 36;
+  const maxValue = Math.max(1, ...premiumValues, ...benefitValues);
+
+  const premiumLine = toPolylinePoints(premiumValues, maxValue, width, height, leftPad, topPad, rightPad, bottomPad);
+  const benefitLine = toPolylinePoints(benefitValues, maxValue, width, height, leftPad, topPad, rightPad, bottomPad);
+
+  const axisLabels = [1, Math.ceil(termYears / 2), termYears]
+    .filter((value, idx, arr) => arr.indexOf(value) === idx)
+    .map((value) => `<span>Year ${value}</span>`)
+    .join('');
+
+  const yearOne = series[0] || { premiumPaid: 0, estimatedBenefit: 0 };
+  const finalYear = series[series.length - 1] || { premiumPaid: 0, estimatedBenefit: 0 };
+
+  return `
+    <div class="projection-card">
+      <div class="projection-head">
+        <div class="projection-title">Visual Benefit Projection</div>
+        <div class="projection-sub">Total premiums paid vs estimated maturity benefit from Year 1 to Year ${termYears}</div>
+      </div>
+
+      <div id="projectionPanel" class="projection-panel" aria-live="polite">
+        <div class="projection-chart-wrap" role="img" aria-label="Projection chart from year 1 to year ${termYears}">
+          <svg class="projection-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="premiumLineGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#000b91" />
+                <stop offset="100%" stop-color="#1a22a8" />
+              </linearGradient>
+              <linearGradient id="benefitLineGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#ed0800" />
+                <stop offset="100%" stop-color="#ff665f" />
+              </linearGradient>
+            </defs>
+            <line x1="${leftPad}" y1="${height - bottomPad}" x2="${width - rightPad}" y2="${height - bottomPad}" class="projection-axis" />
+            <line x1="${leftPad}" y1="${topPad}" x2="${leftPad}" y2="${height - bottomPad}" class="projection-axis" />
+            <polyline points="${premiumLine}" class="projection-line projection-line-premium" />
+            <polyline points="${benefitLine}" class="projection-line projection-line-benefit" />
+          </svg>
+          <div class="projection-axis-labels">${axisLabels}</div>
+        </div>
+
+        <div class="projection-legend">
+          <div class="projection-legend-item"><span class="projection-dot projection-dot-premium"></span>Premiums Paid</div>
+          <div class="projection-legend-item"><span class="projection-dot projection-dot-benefit"></span>Estimated Maturity Value</div>
+        </div>
+
+        <div class="projection-snapshots">
+          <div class="projection-snap"><div class="projection-snap-year">Year 1</div><div class="projection-snap-val">TZS ${fmtNum(yearOne.premiumPaid)}</div><div class="projection-snap-sub">Premium paid</div></div>
+          <div class="projection-snap"><div class="projection-snap-year">Year ${termYears}</div><div class="projection-snap-val">TZS ${fmtNum(finalYear.premiumPaid)}</div><div class="projection-snap-sub">Total premiums</div></div>
+          <div class="projection-snap projection-snap-accent"><div class="projection-snap-year">Maturity</div><div class="projection-snap-val">TZS ${fmtNum(finalYear.estimatedBenefit)}</div><div class="projection-snap-sub">Estimated value at term end</div></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleProjectionPanel() {
+  const panel = document.getElementById('projectionPanel');
+  const btn = document.getElementById('projectionToggleBtn');
+  if (!panel || !btn) return;
+
+  const isHidden = panel.classList.toggle('is-collapsed');
+  btn.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  btn.setAttribute('title', isHidden ? 'Show visual projection' : 'Hide visual projection');
+}
+
 function applyAlternativeCoverageOption(sumAssuredValue) {
   const plan = document.getElementById('plan').value;
   const isLifePlus = plan.includes('Life Plus');
@@ -853,6 +972,7 @@ function calculate() {
   const modePremiumLabel = `Total ${modeLabel} Premium`;
   const alternativeCoverageOptions = getAlternativeCoverageOptions(plan, term, age, sa, wop, wopRate, payMode);
   const alternativeCoverageHtml = renderAlternativeCoverageHtml(alternativeCoverageOptions, modeLabel);
+  const projectionHtml = renderProjectionHtml(term, totalPremiumsTerm, bonusResult.maturityValue);
 
   lastQuoteData = {
     clientName: name,
@@ -898,6 +1018,9 @@ function calculate() {
           <span class="dot"></span>
           ${modeLabel} · ${term}-Year Term · ${plan}
         </div>
+        <button type="button" id="projectionToggleBtn" class="projection-toggle-btn" aria-expanded="true" title="Hide visual projection" aria-label="Toggle visual benefit projection">
+          <span class="projection-toggle-icon" aria-hidden="true">📈</span>
+        </button>
         ${wop ? `<div class="wop-badge">🛡️ WOP Rider Included</div>` : ''}
       </div>
 
@@ -928,6 +1051,8 @@ function calculate() {
           <div class="bc-val" data-animate-number="${Math.round(sa)}" data-prefix="TZS ">TZS ${fmtNum(sa)}</div>
         </div>
       </div>
+
+      ${projectionHtml}
 
       ${alternativeCoverageHtml}
     </div>
