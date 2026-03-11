@@ -16,9 +16,8 @@ const managedScripts = [
 
 function sriForFile(relativeFilePath) {
   const absoluteFilePath = path.resolve(projectRoot, relativeFilePath);
-  // Hash normalized LF text so integrity is stable across Windows/Linux checkouts.
-  const text = fs.readFileSync(absoluteFilePath, 'utf8').replace(/\r\n/g, '\n');
-  const fileBytes = Buffer.from(text, 'utf8');
+  // Hash exact on-disk bytes; SRI must match what the browser fetches byte-for-byte.
+  const fileBytes = fs.readFileSync(absoluteFilePath);
   const digest = crypto.createHash('sha384').update(fileBytes).digest('base64');
   return `sha384-${digest}`;
 }
