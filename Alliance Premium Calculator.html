@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>Alliance Life - Premium Calculator</title>
 <link rel="icon" type="image/png" href="ALAL.png" />
@@ -125,7 +125,7 @@
               <label class="label-required" for="sa">Sum Assured (TZS)</label>
               <input type="text" id="sa" inputmode="numeric" placeholder="e.g. 5,000,000" data-step="500000" data-min="5000000" required aria-required="true" />
               <select id="saSelect" aria-label="Sum Assured (TZS)" required aria-required="true" style="display:none;">
-                <option value="" selected disabled>Select Sum Assured</option>
+                <option value="" selected hidden>Select Sum Assured</option>
                 <option value="5000000">5,000,000</option>
                 <option value="7500000">7,500,000</option>
                 <option value="10000000">10,000,000</option>
@@ -254,7 +254,7 @@
 <script src="js/vendor/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-data.js" integrity="sha384-cZmetEkBxFELtk5ThEs42d9dMXNNqvNi9ynu0vS17GViqf6K93k0va+QsuFC33Tb" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-math.js" integrity="sha384-gPrpTrOdRnCaqJTOgek0OAEEahmEj/53bx2w76bscv4c+fjrGtd1rkdYzBFlDX0l" crossorigin="anonymous"></script>
-<script src="js/modules/calculator-app.js" integrity="sha384-DdKfGqDMlAoSgE2oiDXzfYvLWNmNdW8l41B+UzvgTVKe15cVIPq7WjQqDmuepuZU" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-app.js" integrity="sha384-GPxTY57eoY4UtRanLAxcnc9iGWjCnSYXAha8JxIENHOjOZDi2u0tLM/X0295e5Iv" crossorigin="anonymous"></script>
 <script src="js/calculator.js" integrity="sha384-Vi0zSjE2Dcr/XL2MleOpC/TtlIW8mbpWlpYYp2yYF7SKNT/vUpwGw0Ad7miZBST6" crossorigin="anonymous"></script>
 <!-- script moved to calculator.js -->
 </body>

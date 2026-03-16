@@ -48,8 +48,7 @@ test('Script dependencies include SRI and crossorigin', () => {
     assert.ok(/crossorigin="anonymous"/i.test(tag[0]), `Missing crossorigin for ${src}`);
 
     const expectedIntegrity = integrityMatch[1];
-    const fileText = fs.readFileSync(path.resolve(__dirname, '..', src), 'utf8').replace(/\r\n/g, '\n');
-    const fileBytes = Buffer.from(fileText, 'utf8');
+    const fileBytes = fs.readFileSync(path.resolve(__dirname, '..', src));
     const actualIntegrity = `sha384-${crypto.createHash('sha384').update(fileBytes).digest('base64')}`;
     assert.strictEqual(expectedIntegrity, actualIntegrity, `SRI mismatch for ${src}`);
   });

@@ -129,7 +129,7 @@ function setSumAssuredDropdownOptions(plan, term) {
   const placeholderOption = document.createElement('option');
   placeholderOption.value = '';
   placeholderOption.textContent = 'Select Sum Assured';
-  placeholderOption.disabled = true;
+  placeholderOption.hidden = true;
   placeholderOption.selected = true;
   saSelectEl.appendChild(placeholderOption);
 
@@ -309,22 +309,35 @@ function updatePlanUI() {
     const planAllowed = isLifePlus ? [10,12,15] : baseOptions;
     const allowed = planAllowed.filter(t => t <= maxAllowedTermByAge);
 
-    // disable/enable options
-    [...termEl.options].forEach(opt => {
-      const v = parseInt(opt.value);
-      opt.disabled = !allowed.includes(v);
-    });
+    const currentValue = parseInt(termEl.value);
+    termEl.innerHTML = '';
 
-    // if current value is not allowed, pick the largest allowed option
     if (allowed.length > 0) {
-      if (!allowed.includes(parseInt(termEl.value))) {
-        // choose the largest allowed term (most coverage)
-        termEl.value = String(Math.max(...allowed));
-      }
+      allowed.forEach((term) => {
+        const opt = document.createElement('option');
+        opt.value = String(term);
+        opt.textContent = `${term} Years`;
+        termEl.appendChild(opt);
+      });
+
+      // keep current value when valid, otherwise use the largest allowed term
+      termEl.value = allowed.includes(currentValue)
+        ? String(currentValue)
+        : String(Math.max(...allowed));
     } else {
-      // no allowed terms for this age — disable all and leave selection as-is
-      // UI-level guidance will be provided by validation when attempting to calculate
+      // no allowed terms for this age — show a single informational placeholder
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'No eligible term';
+      opt.selected = true;
+      termEl.appendChild(opt);
     }
+  }
+
+  // Keep sum assured choices aligned with the final active term after term auto-adjustments.
+  if (!isLifePlus) {
+    const activeTerm = parseInt(document.getElementById('term').value);
+    if (!isNaN(activeTerm)) setSumAssuredDropdownOptions(planVal, activeTerm);
   }
 }
 
