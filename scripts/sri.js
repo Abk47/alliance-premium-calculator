@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const projectRoot = path.resolve(__dirname, '..');
-const htmlPath = path.resolve(projectRoot, 'Alliance Premium Calculator.html');
+const htmlPath = path.resolve(projectRoot, 'index.html');
 
 const managedScripts = [
   'js/vendor/jspdf.umd.min.js',
@@ -99,7 +99,7 @@ function main() {
   if (mode === '--write') {
     const updated = updateHtmlWithSri(html);
     fs.writeFileSync(htmlPath, updated, 'utf8');
-    console.log('Updated SRI values in Alliance Premium Calculator.html');
+    console.log('Updated SRI values in index.html');
     return;
   }
 

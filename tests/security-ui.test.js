@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const htmlPath = path.resolve(__dirname, '..', 'Alliance Premium Calculator.html');
+const htmlPath = path.resolve(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const math = require(path.resolve(__dirname, '..', 'js', 'modules', 'calculator-math.js'));
 
