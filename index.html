@@ -85,7 +85,7 @@
             </div>
             <div class="field">
               <label class="label-required" for="age">Age (Last Birthday)</label>
-              <input type="number" id="age" placeholder="Auto-calculated from DOB" min="18" max="60" readonly aria-readonly="true" aria-describedby="ageHint" />
+              <input type="number" id="age" placeholder="Auto-calculated from DOB" min="18" max="60" readonly tabindex="-1" aria-readonly="true" aria-describedby="ageHint" />
               <div class="input-hint" id="ageHint">📋 Valid range: 18–60 yrs</div>
             </div>
           </div>
@@ -221,6 +221,10 @@
           <button id="sendWhatsapp" type="button" class="btn-calc btn-whatsapp" style="display:none;margin-top:.75rem;">
             <img src="whatsapp.png" alt="" class="btn-icon-img" aria-hidden="true" /> Send via WhatsApp
           </button>
+          <button id="addToCompare" type="button" class="btn-calc btn-compare" style="display:none;margin-top:.75rem;">
+            <span class="btn-icon">🧮</span> Add to Compare
+          </button>
+          <div id="comparePanel" class="compare-panel" style="display:none;margin-top:1rem;" aria-live="polite"></div>
         </div>
       </div>
     </div>
@@ -254,7 +258,7 @@
 <script src="js/vendor/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-data.js" integrity="sha384-cZmetEkBxFELtk5ThEs42d9dMXNNqvNi9ynu0vS17GViqf6K93k0va+QsuFC33Tb" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-math.js" integrity="sha384-gPrpTrOdRnCaqJTOgek0OAEEahmEj/53bx2w76bscv4c+fjrGtd1rkdYzBFlDX0l" crossorigin="anonymous"></script>
-<script src="js/modules/calculator-app.js" integrity="sha384-GPxTY57eoY4UtRanLAxcnc9iGWjCnSYXAha8JxIENHOjOZDi2u0tLM/X0295e5Iv" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-app.js" integrity="sha384-ZiS0sHQtlT8PU2ZB896nRQXib9nkAOmIuoKSpSNdKUsZgvLu1fUYNze1Oe9KbbYu" crossorigin="anonymous"></script>
 <script src="js/calculator.js" integrity="sha384-Vi0zSjE2Dcr/XL2MleOpC/TtlIW8mbpWlpYYp2yYF7SKNT/vUpwGw0Ad7miZBST6" crossorigin="anonymous"></script>
 <!-- script moved to calculator.js -->
 </body>

@@ -550,6 +550,171 @@ input:checked + .slider::before { transform: translateX(20px); }
   box-shadow: 0 8px 30px rgba(0,11,145,.45);
 }
 
+.btn-compare {
+  background: linear-gradient(135deg, #0e54d3 0%, #0087d6 100%);
+  box-shadow: 0 6px 24px rgba(0, 123, 210, .35);
+}
+
+.btn-compare:hover {
+  background: linear-gradient(135deg, #0b45ae 0%, #0074b8 100%);
+  box-shadow: 0 8px 30px rgba(0, 123, 210, .45);
+}
+
+.compare-panel {
+  border: 1px solid var(--slate);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, #ffffff 0%, #f5f8ff 100%);
+  box-shadow: var(--shadow-sm);
+  padding: .9rem;
+}
+
+.compare-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .8rem;
+  margin-bottom: .85rem;
+}
+
+.compare-title {
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.compare-sub {
+  margin-top: .2rem;
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.btn-clear-compare {
+  width: auto;
+  min-width: 124px;
+  margin-top: 0;
+  padding: .56rem .8rem;
+  font-size: .7rem;
+  background: #ffffff;
+  color: var(--blue);
+  border: 1px solid rgba(0,11,145,.24);
+  box-shadow: none;
+}
+
+.btn-clear-compare:hover {
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  border-color: rgba(0,11,145,.38);
+  box-shadow: none;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .75rem;
+}
+
+.compare-card {
+  border: 1px solid rgba(0,11,145,.12);
+  border-radius: 12px;
+  background: #fff;
+  padding: .75rem;
+  position: relative;
+  display: grid;
+  gap: .42rem;
+}
+
+.compare-card.is-best {
+  border-color: rgba(237,8,0,.5);
+  box-shadow: 0 8px 24px rgba(237,8,0,.16);
+}
+
+.compare-badge {
+  position: absolute;
+  top: .6rem;
+  right: .6rem;
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #8d1f00;
+  background: #ffe9e7;
+  border: 1px solid rgba(237,8,0,.35);
+  border-radius: 999px;
+  padding: .2rem .42rem;
+}
+
+.compare-plan {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text);
+  padding-right: 5.2rem;
+}
+
+.compare-meta {
+  font-size: .74rem;
+  color: var(--muted);
+  margin-bottom: .2rem;
+}
+
+.compare-row {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  border-bottom: 1px dashed rgba(10,13,46,.12);
+  padding-bottom: .24rem;
+  font-size: .76rem;
+}
+
+.compare-row:last-of-type {
+  border-bottom: none;
+}
+
+.compare-row strong {
+  color: var(--text);
+  text-align: right;
+}
+
+.compare-maturity {
+  color: var(--blue);
+}
+
+.compare-score {
+  margin-top: .1rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #0f5b25;
+}
+
+.compare-remove {
+  border: 1px solid rgba(237,8,0,.26);
+  background: #fff4f3;
+  color: #9e160f;
+  border-radius: 8px;
+  padding: .42rem .5rem;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.compare-remove:hover {
+  background: #ffe7e4;
+}
+
+@media(max-width: 560px) {
+  .compare-head {
+    flex-direction: column;
+  }
+
+  .btn-clear-compare {
+    width: 100%;
+  }
+}
+
 .wa-modal {
   position: fixed;
   inset: 0;
@@ -1179,6 +1344,64 @@ body.dark-mode .theme-toggle {
 body.dark-mode .theme-toggle:hover {
   background: #1b2745;
   color: #fff;
+}
+
+body.dark-mode .compare-panel {
+  border-color: rgba(120,155,255,.28);
+  background: linear-gradient(160deg, #101a2f 0%, #15203a 100%);
+}
+
+body.dark-mode .compare-title {
+  color: #b9ceff;
+}
+
+body.dark-mode .compare-sub,
+body.dark-mode .compare-meta {
+  color: #b8c6eb;
+}
+
+body.dark-mode .compare-card {
+  border-color: rgba(120,155,255,.22);
+  background: #101a2d;
+}
+
+body.dark-mode .compare-card.is-best {
+  border-color: rgba(255,128,114,.52);
+  box-shadow: 0 8px 24px rgba(237,8,0,.2);
+}
+
+body.dark-mode .compare-plan,
+body.dark-mode .compare-row strong {
+  color: #edf2ff;
+}
+
+body.dark-mode .compare-row {
+  border-bottom-color: rgba(219,228,255,.17);
+}
+
+body.dark-mode .compare-score {
+  color: #90dfac;
+}
+
+body.dark-mode .btn-clear-compare {
+  background: #15233f;
+  color: #dbe4ff;
+  border-color: rgba(219,228,255,.22);
+}
+
+body.dark-mode .btn-clear-compare:hover {
+  background: #1d2f52;
+  color: #ffffff;
+}
+
+body.dark-mode .compare-remove {
+  background: #2c1720;
+  color: #ffd5d2;
+  border-color: rgba(255,117,117,.35);
+}
+
+body.dark-mode .compare-remove:hover {
+  background: #3a1b25;
 }
 
 body.dark-mode .card,
