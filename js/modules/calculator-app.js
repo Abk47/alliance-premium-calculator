@@ -176,7 +176,7 @@ function bindAutoRecalculate() {
 
   const dobEl = document.getElementById('dob');
   if (dobEl) {
-    dobEl.addEventListener('change', function () {
+    dobEl.addEventListener('blur', function () {
       if (lastQuoteData === null) return;
       const newAge = getAgeFromDob(this.value);
       if (newAge != null && newAge >= 18 && newAge <= 60) {
