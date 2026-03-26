@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const htmlPath = path.resolve(__dirname, '..', 'Alliance Premium Calculator.html');
+const htmlPath = path.resolve(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const math = require(path.resolve(__dirname, '..', 'js', 'modules', 'calculator-math.js'));
 
@@ -48,15 +48,14 @@ test('Script dependencies include SRI and crossorigin', () => {
     assert.ok(/crossorigin="anonymous"/i.test(tag[0]), `Missing crossorigin for ${src}`);
 
     const expectedIntegrity = integrityMatch[1];
-    const fileText = fs.readFileSync(path.resolve(__dirname, '..', src), 'utf8').replace(/\r\n/g, '\n');
-    const fileBytes = Buffer.from(fileText, 'utf8');
+    const fileBytes = fs.readFileSync(path.resolve(__dirname, '..', src));
     const actualIntegrity = `sha384-${crypto.createHash('sha384').update(fileBytes).digest('base64')}`;
     assert.strictEqual(expectedIntegrity, actualIntegrity, `SRI mismatch for ${src}`);
   });
 });
 
 test('Main quote flow controls exist and script order is correct', () => {
-  ['id="dob"', 'id="plan"', 'id="term"', 'id="calculateBtn"', 'id="resultContent"'].forEach((token) => {
+  ['id="dob"', 'id="plan"', 'id="term"', 'id="calculateBtn"', 'id="resultContent"', 'id="addToCompare"', 'id="comparePanel"'].forEach((token) => {
     assert.ok(html.includes(token), `Missing required UI element ${token}`);
   });
 

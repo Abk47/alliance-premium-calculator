@@ -1,14 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Alliance Premium Calculator</title>
-  <meta http-equiv="refresh" content="0; url=Alliance%20Premium%20Calculator.html" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<title>Alliance Life - Premium Calculator</title>
+<link rel="icon" type="image/png" href="ALAL.png" />
+<link rel="apple-touch-icon" href="ALAL.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/calculator.css">
+<!-- styles moved to calculator.css -->
 </head>
 <body>
-  <p>Redirecting to <a href="Alliance%20Premium%20Calculator.html">Alliance Premium Calculator</a>...</p>
+<a href="#mainContent" class="skip-link">Skip to calculator</a>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo-shield">
+        <img src="ALAL.png" alt="Alliance Life logo" />
+      </div>
+      <div class="logo-text">
+        <div class="logo-name">Alliance Life</div>
+        <div class="logo-sub">Assurance Limited</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-date" id="headerDate"></div>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" aria-pressed="false">🌙 Dark</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ HERO BAND ═══════════════ -->
+<div class="hero-band">
+  <div class="hero-stripe"></div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-title">Premium <span>Calculator</span></div>
+      <div class="hero-desc">Generate accurate client quotations – Life and Education plans include optional WOP and cashback riders; Life Plus plans only offer cashback.</div>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <div class="hero-stat">
+        <div class="hero-stat-val">6</div>
+        <div class="hero-stat-lbl">Plan Types</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">5</div>
+        <div class="hero-stat-lbl">Terms</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">4</div>
+        <div class="hero-stat-lbl">Pay Modes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main id="mainContent" class="wrapper" role="main">
+  <div class="grid">
+
+    <!-- LEFT COLUMN: Inputs -->
+    <div>
+
+      <!-- Client Details -->
+      <div class="card info-card">
+        <div class="card-header">
+          <div class="card-icon">👤</div>
+          <div class="card-title">Client Information</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label for="clientName">Client Name</label>
+            <!-- only letters, spaces and basic punctuation allowed; helps prevent accidental script tags -->
+            <input type="text" id="clientName" placeholder="e.g. Alex Smith" pattern="[A-Za-z\s.,'\-]{1,100}" autocomplete="name" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label-required" for="dob">Date of Birth</label>
+              <input type="date" id="dob" required aria-required="true" />
+            </div>
+            <div class="field">
+              <label class="label-required" for="age">Age (Last Birthday)</label>
+              <input type="number" id="age" placeholder="Auto-calculated from DOB" min="18" max="60" readonly tabindex="-1" aria-readonly="true" aria-describedby="ageHint" />
+              <div class="input-hint" id="ageHint">📋 Valid range: 18–60 yrs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy Details -->
+      <div class="card info-card">
+        <div class="card-header card-header-red">
+          <div class="card-icon">📋</div>
+          <div class="card-title">Policy Details</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="label-required" for="plan">Plan Type</label>
+            <select id="plan" required aria-required="true">
+              <option value="Life Plan- With cash back">Life Plan – With Cash Back</option>
+              <option value="Life Plan- No cash back">Life Plan – No Cash Back</option>
+              <option value="Education Plan- With cash back">Education Plan – With Cash Back</option>
+              <option value="Education Plan- No cash back">Education Plan – No Cash Back</option>
+              <option value="Life Plus- With cash back">Life Plus – With Cash Back</option>
+              <option value="Life Plus- No cash back">Life Plus – No Cash Back</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label-required" for="term">Policy Term</label>
+              <select id="term" required aria-required="true">
+                <option value="5">5 Years</option>
+                <option value="7">7 Years</option>
+                <option value="10" selected>10 Years</option>
+                <option value="12">12 Years</option>
+                <option value="15">15 Years</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="label-required" for="sa">Sum Assured (TZS)</label>
+              <input type="text" id="sa" inputmode="numeric" placeholder="e.g. 5,000,000" data-step="500000" data-min="5000000" required aria-required="true" />
+              <select id="saSelect" aria-label="Sum Assured (TZS)" required aria-required="true" style="display:none;">
+                <option value="" selected disabled>Select Sum Assured</option>
+                <option value="5000000">5,000,000</option>
+                <option value="7500000">7,500,000</option>
+                <option value="10000000">10,000,000</option>
+                <option value="12500000">12,500,000</option>
+                <option value="15000000">15,000,000</option>
+                <option value="17500000">17,500,000</option>
+                <option value="20000000">20,000,000</option>
+                <option value="25000000">25,000,000</option>
+                <option value="30000000">30,000,000</option>
+                <option value="35000000">35,000,000</option>
+                <option value="40000000">40,000,000</option>
+                <option value="45000000">45,000,000</option>
+                <option value="50000000">50,000,000</option>
+                <option value="55000000">55,000,000</option>
+                <option value="60000000">60,000,000</option>
+                <option value="65000000">65,000,000</option>
+                <option value="70000000">70,000,000</option>
+                <option value="75000000">75,000,000</option>
+                <option value="80000000">80,000,000</option>
+                <option value="85000000">85,000,000</option>
+                <option value="90000000">90,000,000</option>
+                <option value="95000000">95,000,000</option>
+                <option value="100000000">100,000,000</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label id="modeLabel">Mode of Payment</label>
+            <div class="seg" role="group" aria-labelledby="modeLabel">
+              <button type="button" class="seg-btn active" aria-pressed="true" data-mode="monthly">Monthly</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="quarterly">Quarterly</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="semi">Semi-Annual</button>
+              <button type="button" class="seg-btn" aria-pressed="false" data-mode="annual">Annual</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Benefits -->
+      <div class="card info-card">
+        <div class="card-header">
+          <div class="card-icon">✨</div>
+          <div class="card-title">Additional Benefits</div>
+        </div>
+        <div class="card-body">
+          <div class="toggle-row" id="wopRow">
+            <div class="toggle-info">
+              <div class="toggle-label">Waiver of Premium (TPD)</div>
+              <div class="toggle-sub">Premium waived upon total permanent disability event</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="wop" aria-label="Waiver of Premium" /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Cash Back Benefit</div>
+              <div class="toggle-sub">Client receives refund after every 36th premium paid</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="cashbackToggle" aria-label="Cash Back Benefit" /><span class="slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="errorMsg" class="error-msg" role="alert" aria-live="assertive" tabindex="-1">⚠️ <span id="errorText"></span></div>
+
+      <!-- CTA -->
+      <button type="button" id="calculateBtn" class="btn-calc">
+        <span class="btn-icon">⚡</span> Calculate Premium
+      </button>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Results -->
+    <div class="right-col">
+      <div class="card info-card" style="margin-bottom:0;overflow:visible;box-shadow:none;background:transparent;border:none;">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Quotation Summary</div>
+        </div>
+        <div class="card-body" style="background:#fff;border-radius:0 0 var(--radius) var(--radius);border:1px solid rgba(0,11,145,.07);border-top:none;">
+          <div id="result" aria-live="polite" aria-atomic="true">
+            <div id="resultContent"></div>
+          </div>
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon">📄</div>
+            <div class="empty-title">No Quotation Yet</div>
+            <div class="empty-sub">Complete the client and policy details, then click <strong>Calculate Premium</strong> to generate a full quotation breakdown.</div>
+          </div>
+          <!-- PDF download button shown after a result is generated -->
+          <button id="downloadPdf" type="button" class="btn-calc" style="display:none;margin-top:1rem;">
+            <span class="btn-icon">⬇️</span> Download PDF
+          </button>
+          <button id="sendWhatsapp" type="button" class="btn-calc btn-whatsapp" style="display:none;margin-top:.75rem;">
+            <img src="whatsapp.png" alt="" class="btn-icon-img" aria-hidden="true" /> Send via WhatsApp
+          </button>
+          <button id="addToCompare" type="button" class="btn-calc btn-compare" style="display:none;margin-top:.75rem;">
+            <span class="btn-icon">🧮</span> Add to Compare
+          </button>
+          <div id="comparePanel" class="compare-panel" style="display:none;margin-top:1rem;" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  Alliance Life Assurance Limited · Internal Retail Calculator · <span>Confidential</span>
+</div>
+
+<div id="whatsappModal" class="wa-modal" role="dialog" aria-modal="true" aria-labelledby="waModalTitle" style="display:none;">
+  <div class="wa-modal-card">
+    <div class="wa-modal-title" id="waModalTitle">Send via WhatsApp</div>
+    <div class="wa-modal-sub">Enter customer WhatsApp number in this format: 255XXXXXXXXX</div>
+    <div class="wa-modal-field">
+      <label for="waPhoneInput">Customer Number</label>
+      <input id="waPhoneInput" type="tel" inputmode="numeric" placeholder="255XXXXXXXXX" maxlength="12" />
+      <div id="waPhoneError" class="wa-modal-error" aria-live="polite"></div>
+    </div>
+    <div class="wa-modal-actions">
+      <button id="waCancelBtn" type="button" class="btn-calc wa-btn wa-btn-secondary">Cancel</button>
+      <button id="waConfirmBtn" type="button" class="btn-calc wa-btn wa-btn-primary">Open WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keep integrity hashes in sync when any script file changes. -->
+<script src="js/vendor/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+<script src="js/vendor/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-data.js" integrity="sha384-cZmetEkBxFELtk5ThEs42d9dMXNNqvNi9ynu0vS17GViqf6K93k0va+QsuFC33Tb" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-math.js" integrity="sha384-gPrpTrOdRnCaqJTOgek0OAEEahmEj/53bx2w76bscv4c+fjrGtd1rkdYzBFlDX0l" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-app.js" integrity="sha384-RMM4B9kUt2Mc90E+DnkSROzGM9y21EjX+DBX61n5MU9u3U1VX2aQkbR1hA/kG1XF" crossorigin="anonymous"></script>
+<script src="js/calculator.js" integrity="sha384-Vi0zSjE2Dcr/XL2MleOpC/TtlIW8mbpWlpYYp2yYF7SKNT/vUpwGw0Ad7miZBST6" crossorigin="anonymous"></script>
+<!-- script moved to calculator.js -->
 </body>
 </html>
