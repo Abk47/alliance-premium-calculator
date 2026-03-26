@@ -117,11 +117,11 @@ function getAllowedSumAssuredValues(plan, term) {
   return [...values].sort((a, b) => a - b);
 }
 
-function setSumAssuredDropdownOptions(plan, term) {
+function setSumAssuredDropdownOptions(plan, term, preserveValue) {
   const saSelectEl = document.getElementById('saSelect');
   if (!saSelectEl) return;
 
-  const currentValue = saSelectEl.value;
+  const currentValue = preserveValue !== undefined ? preserveValue : saSelectEl.value;
   const allowedValues = getAllowedSumAssuredValues(plan, term);
 
   saSelectEl.innerHTML = '';
@@ -315,6 +315,10 @@ function updatePlanUI() {
   const planEl = document.getElementById('plan');
   const planVal = planEl.value;
   const termVal = parseInt(document.getElementById('term').value);
+  // Capture SA before any dropdown rebuilds so partial/invalid intermediate
+  // states don't wipe the user's selection.
+  const saSelectEl0 = document.getElementById('saSelect');
+  const savedSaValue = saSelectEl0 ? saSelectEl0.value : '';
 
   // WOP behaviour
   const isLifePlus = planVal.includes('Life Plus');
@@ -349,7 +353,7 @@ function updatePlanUI() {
     } else {
       saEl.style.display = 'none';
       if (saSelectEl) saSelectEl.style.display = '';
-      setSumAssuredDropdownOptions(planVal, termVal);
+      setSumAssuredDropdownOptions(planVal, termVal, savedSaValue);
       saEl.dataset.min = '5000000';
       saEl.placeholder = 'e.g. 5,000,000';
     }
@@ -393,7 +397,7 @@ function updatePlanUI() {
   // Keep sum assured choices aligned with the final active term after term auto-adjustments.
   if (!isLifePlus) {
     const activeTerm = parseInt(document.getElementById('term').value);
-    if (!isNaN(activeTerm)) setSumAssuredDropdownOptions(planVal, activeTerm);
+    if (!isNaN(activeTerm)) setSumAssuredDropdownOptions(planVal, activeTerm, savedSaValue);
   }
 }
 
