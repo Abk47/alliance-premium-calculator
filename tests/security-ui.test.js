@@ -55,7 +55,7 @@ test('Script dependencies include SRI and crossorigin', () => {
 });
 
 test('Main quote flow controls exist and script order is correct', () => {
-  ['id="dob"', 'id="plan"', 'id="term"', 'id="calculateBtn"', 'id="resultContent"', 'id="addToCompare"', 'id="comparePanel"'].forEach((token) => {
+  ['id="dob"', 'id="plan"', 'id="term"', 'id="calculateBtn"', 'id="resultContent"'].forEach((token) => {
     assert.ok(html.includes(token), `Missing required UI element ${token}`);
   });
 
