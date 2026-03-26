@@ -176,31 +176,38 @@ function bindAutoRecalculate() {
 
   const dobEl = document.getElementById('dob');
   if (dobEl) {
+    let dobDebounceTimer = null;
     dobEl.addEventListener('change', function () {
       if (lastQuoteData === null) return;
-      const newAge = getAgeFromDob(this.value);
-      if (newAge != null && newAge >= 18 && newAge <= 60) {
-        calculate();
-      } else {
-        // Invalid age — clear quotation and show validation error
-        lastQuoteData = null;
-        const errDiv = document.getElementById('errorMsg');
-        const errTxt = document.getElementById('errorText');
-        const result = document.getElementById('result');
-        const emptyState = document.getElementById('emptyState');
-        const pdfBtn = document.getElementById('downloadPdf');
-        const whatsappBtn = document.getElementById('sendWhatsapp');
-        const msg = !this.value ? UI_MESSAGES.dobRequired
-                  : (newAge == null || isNaN(newAge)) ? UI_MESSAGES.dobInvalid
-                  : UI_MESSAGES.ageRange;
-        if (errTxt) errTxt.textContent = msg;
-        if (errDiv) errDiv.style.display = 'flex';
-        if (result) result.style.display = 'none';
-        if (emptyState) emptyState.style.display = 'block';
-        if (pdfBtn) pdfBtn.style.display = 'none';
-        if (whatsappBtn) whatsappBtn.style.display = 'none';
-        try { if (errDiv) errDiv.focus(); } catch (e) {}
-      }
+      const dobValue = this.value;
+      clearTimeout(dobDebounceTimer);
+      // Debounce: mobile date pickers fire change on each scroll segment
+      // (year, month, day). Wait until the user stops for 800ms before acting.
+      dobDebounceTimer = setTimeout(function () {
+        const newAge = getAgeFromDob(dobValue);
+        if (newAge != null && newAge >= 18 && newAge <= 60) {
+          calculate();
+        } else {
+          // Invalid age — clear quotation and show validation error
+          lastQuoteData = null;
+          const errDiv = document.getElementById('errorMsg');
+          const errTxt = document.getElementById('errorText');
+          const result = document.getElementById('result');
+          const emptyState = document.getElementById('emptyState');
+          const pdfBtn = document.getElementById('downloadPdf');
+          const whatsappBtn = document.getElementById('sendWhatsapp');
+          const msg = !dobValue ? UI_MESSAGES.dobRequired
+                    : (newAge == null || isNaN(newAge)) ? UI_MESSAGES.dobInvalid
+                    : UI_MESSAGES.ageRange;
+          if (errTxt) errTxt.textContent = msg;
+          if (errDiv) errDiv.style.display = 'flex';
+          if (result) result.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          if (pdfBtn) pdfBtn.style.display = 'none';
+          if (whatsappBtn) whatsappBtn.style.display = 'none';
+          try { if (errDiv) errDiv.focus(); } catch (e) {}
+        }
+      }, 800);
     });
   }
 
