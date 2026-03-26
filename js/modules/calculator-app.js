@@ -165,11 +165,40 @@ function syncCashback() {
   else if (!cb && cur.includes('With cash back')) plan.value = cur.replace('With cash back','No cash back');
 }
 
+function autoRecalculate() {
+  if (lastQuoteData !== null) calculate();
+}
+
+function bindAutoRecalculate() {
+  const planEl = document.getElementById('plan');
+  if (planEl) planEl.addEventListener('change', autoRecalculate);
+
+  const termEl = document.getElementById('term');
+  if (termEl) termEl.addEventListener('change', autoRecalculate);
+
+  const dobEl = document.getElementById('dob');
+  if (dobEl) dobEl.addEventListener('change', autoRecalculate);
+
+  const wopEl = document.getElementById('wop');
+  if (wopEl) wopEl.addEventListener('change', autoRecalculate);
+
+  // fires after syncCashback (registered first) has already updated plan.value
+  const cashbackEl = document.getElementById('cashbackToggle');
+  if (cashbackEl) cashbackEl.addEventListener('change', autoRecalculate);
+
+  const saSelectEl = document.getElementById('saSelect');
+  if (saSelectEl) saSelectEl.addEventListener('change', autoRecalculate);
+
+  // for Life Plus free-text SA, recalculate on blur (not on every keystroke)
+  const saEl = document.getElementById('sa');
+  if (saEl) saEl.addEventListener('change', autoRecalculate);
+}
+
 function bindUiEventHandlers() {
   document.querySelectorAll('.seg-btn[data-mode]').forEach((btn) => {
     btn.addEventListener('click', function () {
       const mode = this.getAttribute('data-mode');
-      if (mode) setMode(mode, this);
+      if (mode) { setMode(mode, this); autoRecalculate(); }
     });
   });
 
@@ -380,6 +409,7 @@ if (ageInputEl) ageInputEl.addEventListener('input', updatePlanUI);
 updatePlanUI();
 initTheme();
 bindUiEventHandlers();
+bindAutoRecalculate();
 
 // ─── Sum Assured formatting: show thousand separators while typing ─────────
 const saEl = document.getElementById('sa');
