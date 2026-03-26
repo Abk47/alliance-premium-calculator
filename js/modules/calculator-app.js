@@ -60,8 +60,6 @@ const { RATES, LIFE_PLUS_BASE_RATES, WOP, TERM_IDX } = window.CalculatorData || 
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
 let lastQuoteData = null;
-let compareQuotes = [];
-const MAX_COMPARE_QUOTES = 4;
 let whatsappLaunchInProgress = false;
 let whatsappLastSubmitAt = 0;
 let whatsappModalSessionId = 0;
@@ -223,12 +221,6 @@ function bindUiEventHandlers() {
     whatsappBtn.dataset.boundClick = '1';
   }
 
-  const addToCompareBtn = document.getElementById('addToCompare');
-  if (addToCompareBtn && addToCompareBtn.dataset.boundClick !== '1') {
-    addToCompareBtn.addEventListener('click', addCurrentQuoteToCompare);
-    addToCompareBtn.dataset.boundClick = '1';
-  }
-
   const waCancelBtn = document.getElementById('waCancelBtn');
   if (waCancelBtn && waCancelBtn.dataset.boundClick !== '1') {
     waCancelBtn.addEventListener('click', closeWhatsappModal);
@@ -260,28 +252,6 @@ function bindUiEventHandlers() {
       if (event.target === waModal) closeWhatsappModal();
     });
     waModal.dataset.boundClick = '1';
-  }
-
-  const comparePanel = document.getElementById('comparePanel');
-  if (comparePanel && comparePanel.dataset.boundClick !== '1') {
-    comparePanel.addEventListener('click', function (event) {
-      const clearButton = event.target.closest('[data-compare-action="clear"]');
-      if (clearButton) {
-        compareQuotes = [];
-        renderComparePanel();
-        syncCompareCta();
-        return;
-      }
-
-      const removeButton = event.target.closest('[data-compare-action="remove"]');
-      if (removeButton) {
-        const id = removeButton.getAttribute('data-id');
-        compareQuotes = compareQuotes.filter((quote) => quote.id !== id);
-        renderComparePanel();
-        syncCompareCta();
-      }
-    });
-    comparePanel.dataset.boundClick = '1';
   }
 
   const resultContent = document.getElementById('resultContent');
@@ -533,9 +503,7 @@ const UI_MESSAGES = {
   pdfLibsMissing: 'PDF generation libraries are unavailable. Please ensure jsPDF and html2canvas are reachable.',
   pdfFailed: 'Failed to generate PDF. Please try again.',
   whatsappNeedQuote: 'Please calculate a quotation before sending via WhatsApp.',
-  whatsappPhoneInvalid: 'Please enter a valid customer number in this format: 255XXXXXXXXX.',
-  compareNeedQuote: 'Please calculate a quotation before adding it to compare.',
-  compareMaxReached: 'You can compare up to 4 scenarios. Remove one scenario to add another.'
+  whatsappPhoneInvalid: 'Please enter a valid customer number in this format: 255XXXXXXXXX.'
 };
 
 function isValidWhatsappNumber(phoneNumber) {
@@ -769,111 +737,6 @@ function applyAlternativeCoverageOption(sumAssuredValue) {
   calculate();
 }
 
-function buildQuoteFingerprint(quote) {
-  return [
-    quote.plan,
-    quote.term,
-    quote.sumAssured,
-    quote.paymentMode,
-    quote.wopIncluded ? '1' : '0'
-  ].join('|');
-}
-
-function createCompareSnapshot(quote) {
-  return {
-    id: buildQuoteFingerprint(quote),
-    clientName: quote.clientName || '',
-    plan: quote.plan,
-    term: quote.term,
-    sumAssured: quote.sumAssured,
-    paymentMode: quote.paymentMode,
-    periodPremium: quote.periodPremium,
-    totalPremiumContribution: quote.totalPremiumContribution,
-    maturityValue: quote.maturityValue,
-    totalCashback: quote.totalCashback,
-    wopIncluded: !!quote.wopIncluded
-  };
-}
-
-function syncCompareCta() {
-  const addToCompareBtn = document.getElementById('addToCompare');
-  if (!addToCompareBtn || !lastQuoteData) return;
-  const currentId = buildQuoteFingerprint(lastQuoteData);
-  const existing = compareQuotes.find((quote) => quote.id === currentId);
-  addToCompareBtn.innerHTML = existing
-    ? '<span class="btn-icon">🔁</span> Update in Compare'
-    : '<span class="btn-icon">🧮</span> Add to Compare';
-}
-
-function renderComparePanel() {
-  const panel = document.getElementById('comparePanel');
-  if (!panel) return;
-
-  if (!compareQuotes.length) {
-    panel.style.display = 'none';
-    panel.innerHTML = '';
-    return;
-  }
-
-  const scored = compareQuotes.map((quote) => {
-    const score = quote.totalPremiumContribution > 0
-      ? (quote.maturityValue / quote.totalPremiumContribution)
-      : 0;
-    return { quote, score };
-  });
-  const best = scored.reduce((top, current) => (current.score > top.score ? current : top), scored[0]);
-
-  panel.style.display = 'block';
-  panel.innerHTML = `
-    <div class="compare-head">
-      <div>
-        <div class="compare-title">Scenario Compare</div>
-        <div class="compare-sub">${compareQuotes.length} of ${MAX_COMPARE_QUOTES} slots used. Best value is based on maturity-to-total-premium ratio.</div>
-      </div>
-      <button type="button" class="btn-calc btn-clear-compare" data-compare-action="clear">Clear Compare</button>
-    </div>
-    <div class="compare-grid">
-      ${scored.map(({ quote, score }) => `
-        <article class="compare-card ${quote.id === best.quote.id ? 'is-best' : ''}">
-          ${quote.id === best.quote.id ? '<div class="compare-badge">Best Value</div>' : ''}
-          <div class="compare-plan">${quote.plan}</div>
-          <div class="compare-meta">${quote.term} Years · ${quote.paymentMode}${quote.wopIncluded ? ' · WOP' : ''}</div>
-          <div class="compare-row"><span>Sum Assured</span><strong>TZS ${fmtNum(quote.sumAssured)}</strong></div>
-          <div class="compare-row"><span>${quote.paymentMode} Premium</span><strong>TZS ${fmtNum(quote.periodPremium)}</strong></div>
-          <div class="compare-row"><span>Total Premium (${quote.term} Years)</span><strong>TZS ${fmtNum(quote.totalPremiumContribution)}</strong></div>
-          <div class="compare-row"><span>Estimated Maturity</span><strong class="compare-maturity">TZS ${fmtNum(quote.maturityValue)}</strong></div>
-          <div class="compare-row"><span>Total Cashback</span><strong>TZS ${fmtNum(quote.totalCashback)}</strong></div>
-          <div class="compare-score">Value Score: ${score.toFixed(2)}x</div>
-          <button type="button" class="compare-remove" data-compare-action="remove" data-id="${quote.id}">Remove</button>
-        </article>
-      `).join('')}
-    </div>
-  `;
-}
-
-function addCurrentQuoteToCompare() {
-  if (!lastQuoteData) {
-    alert(UI_MESSAGES.compareNeedQuote);
-    return;
-  }
-
-  const snapshot = createCompareSnapshot(lastQuoteData);
-  const existingIndex = compareQuotes.findIndex((quote) => quote.id === snapshot.id);
-
-  if (existingIndex >= 0) {
-    compareQuotes[existingIndex] = snapshot;
-  } else {
-    if (compareQuotes.length >= MAX_COMPARE_QUOTES) {
-      alert(UI_MESSAGES.compareMaxReached);
-      return;
-    }
-    compareQuotes.push(snapshot);
-  }
-
-  renderComparePanel();
-  syncCompareCta();
-}
-
 // simple helper to escape text before inserting in innerHTML
 function escapeHTML(str) {
   return str.replace(/[&<>"'\/]/g, function (s) {
@@ -914,13 +777,11 @@ function calculate() {
   const result = document.getElementById('result');
   const pdfBtn = document.getElementById('downloadPdf');
   const whatsappBtn = document.getElementById('sendWhatsapp');
-  const compareBtn = document.getElementById('addToCompare');
 
   errDiv.style.display = 'none';
   // hide download link until a fresh result is ready
   if (pdfBtn) pdfBtn.style.display = 'none';
   if (whatsappBtn) whatsappBtn.style.display = 'none';
-  if (compareBtn) compareBtn.style.display = 'none';
 
   const ageEl = document.getElementById('age');
   const dobRaw = document.getElementById('dob').value;
@@ -1066,8 +927,6 @@ function calculate() {
     } catch (e) { pdfBtn.style.display = 'none'; }
   }
   if (whatsappBtn) whatsappBtn.style.display = 'flex';
-  if (compareBtn) compareBtn.style.display = 'flex';
-  syncCompareCta();
 
   // assembly of result markup is mostly fixed values; name has already been escaped
   contentDiv.innerHTML = `
