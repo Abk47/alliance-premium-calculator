@@ -175,7 +175,13 @@ function bindAutoRecalculate() {
   if (termEl) termEl.addEventListener('change', autoRecalculate);
 
   const dobEl = document.getElementById('dob');
-  if (dobEl) dobEl.addEventListener('change', autoRecalculate);
+  if (dobEl) {
+    dobEl.addEventListener('change', function () {
+      if (lastQuoteData === null) return;
+      const newAge = getAgeFromDob(this.value);
+      if (newAge != null && newAge >= 18 && newAge <= 60) calculate();
+    });
+  }
 
   const wopEl = document.getElementById('wop');
   if (wopEl) wopEl.addEventListener('change', autoRecalculate);
