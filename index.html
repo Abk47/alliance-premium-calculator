@@ -66,6 +66,12 @@
     <!-- LEFT COLUMN: Inputs -->
     <div>
 
+      <!-- Calculator mode toggle -->
+      <div class="calc-mode-bar" role="group" aria-label="Calculator mode">
+        <button type="button" class="calc-mode-btn active" data-calc-mode="standard">📊 Standard</button>
+        <button type="button" class="calc-mode-btn" data-calc-mode="budget">💰 Budget Finder</button>
+      </div>
+
       <!-- Client Details -->
       <div class="card info-card">
         <div class="card-header">
@@ -92,8 +98,23 @@
         </div>
       </div>
 
+      <!-- Budget Finder card (shown in budget mode) -->
+      <div class="card info-card" id="budgetCard" style="display:none;">
+        <div class="card-header" style="background:linear-gradient(135deg,#000b91 0%,#2d3adc 100%);color:#fff;">
+          <div class="card-icon">💰</div>
+          <div class="card-title" style="color:#fff;">Your Budget</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="label-required" for="budgetAmount">Budget per <span id="budgetModeLabel">Month</span> (TZS)</label>
+            <input type="text" id="budgetAmount" inputmode="numeric" placeholder="e.g. 50,000" autocomplete="off" />
+            <div class="input-hint">💡 We'll find the highest coverage that fits your budget</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Policy Details -->
-      <div class="card info-card">
+      <div class="card info-card" id="policyDetailsCard">
         <div class="card-header card-header-red">
           <div class="card-icon">📋</div>
           <div class="card-title">Policy Details</div>
@@ -165,7 +186,7 @@
       </div>
 
       <!-- Additional Benefits -->
-      <div class="card info-card">
+      <div class="card info-card" id="additionalBenefitsCard">
         <div class="card-header">
           <div class="card-icon">✨</div>
           <div class="card-title">Additional Benefits</div>
@@ -195,12 +216,33 @@
       <button type="button" id="calculateBtn" class="btn-calc">
         <span class="btn-icon">⚡</span> Calculate Premium
       </button>
+      <button type="button" id="findPlansBtn" class="btn-calc" style="display:none;">
+        <span class="btn-icon">🎯</span> Find Best Plans
+      </button>
 
     </div>
 
     <!-- RIGHT COLUMN: Results -->
     <div class="right-col">
-      <div class="card info-card" style="margin-bottom:0;overflow:visible;box-shadow:none;background:transparent;border:none;">
+
+      <!-- Budget Finder results (shown in budget mode) -->
+      <div id="reverseResultsCard" class="card info-card" style="display:none;margin-bottom:0;overflow:visible;box-shadow:none;background:transparent;border:none;">
+        <div class="card-header">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Best Plans For Your Budget</div>
+        </div>
+        <div class="card-body" style="background:#fff;border-radius:0 0 var(--radius) var(--radius);border:1px solid rgba(0,11,145,.07);border-top:none;">
+          <div id="reverseResultContent"></div>
+          <div id="reverseEmptyState" class="empty-state" style="display:none;">
+            <div class="empty-icon">💰</div>
+            <div class="empty-title">No Plans Found</div>
+            <div class="empty-sub">No plans match your budget. Try a higher amount or check if the DOB is correct.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Standard quotation results -->
+      <div id="standardResultsCard" class="card info-card" style="margin-bottom:0;overflow:visible;box-shadow:none;background:transparent;border:none;">
         <div class="card-header">
           <div class="card-icon">📊</div>
           <div class="card-title">Quotation Summary</div>
@@ -223,6 +265,7 @@
           </button>
         </div>
       </div>
+
     </div>
 
   </div>
@@ -270,7 +313,7 @@
 <script src="js/vendor/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-data.js" integrity="sha384-cZmetEkBxFELtk5ThEs42d9dMXNNqvNi9ynu0vS17GViqf6K93k0va+QsuFC33Tb" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-math.js" integrity="sha384-gPrpTrOdRnCaqJTOgek0OAEEahmEj/53bx2w76bscv4c+fjrGtd1rkdYzBFlDX0l" crossorigin="anonymous"></script>
-<script src="js/modules/calculator-app.js" integrity="sha384-oD7Ouccodxi7w+QU0UDxPeWAcgusVYKXwXp4v6mWJLBLLTCculCGBL6b3fwFl1fW" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-app.js" integrity="sha384-M1aT6UtG4ppIXTgjP8f6+wxUIziEHX61wq84I+JZg+somvYqTz5SvxAsmIjeT8Ov" crossorigin="anonymous"></script>
 <script src="js/calculator.js" integrity="sha384-Vi0zSjE2Dcr/XL2MleOpC/TtlIW8mbpWlpYYp2yYF7SKNT/vUpwGw0Ad7miZBST6" crossorigin="anonymous"></script>
 <!-- script moved to calculator.js -->
 </body>
