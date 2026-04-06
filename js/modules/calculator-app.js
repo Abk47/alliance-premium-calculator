@@ -178,18 +178,17 @@ function bindAutoRecalculate() {
   if (dobEl) {
     let dobDebounceTimer = null;
     dobEl.addEventListener('change', function () {
-      if (lastQuoteData === null) return;
       const dobValue = this.value;
       clearTimeout(dobDebounceTimer);
       // Debounce: mobile date pickers fire change on each scroll segment
       // (year, month, day). Wait until the user stops for 800ms before acting.
       dobDebounceTimer = setTimeout(function () {
         const newAge = getAgeFromDob(dobValue);
-        if (newAge != null && newAge >= 18 && newAge <= 60) {
-          calculate();
-        } else {
-          // Invalid age — clear quotation and show validation error
+        if (newAge == null || isNaN(newAge) || newAge < 18 || newAge > 60) {
+          // Invalid age — close modal if open, clear quotation and show validation error
           lastQuoteData = null;
+          const dobModal = document.getElementById('dobChangeModal');
+          if (dobModal) dobModal.style.display = 'none';
           const errDiv = document.getElementById('errorMsg');
           const errTxt = document.getElementById('errorText');
           const result = document.getElementById('result');
@@ -206,8 +205,35 @@ function bindAutoRecalculate() {
           if (pdfBtn) pdfBtn.style.display = 'none';
           if (whatsappBtn) whatsappBtn.style.display = 'none';
           try { if (errDiv) errDiv.focus(); } catch (e) {}
+        } else if (lastQuoteData !== null) {
+          // Restore SA selection in case updatePlanUI reset it during term auto-adjust
+          const saSelectEl = document.getElementById('saSelect');
+          if (saSelectEl && !saSelectEl.value && lastQuoteData.sumAssured) {
+            saSelectEl.value = String(lastQuoteData.sumAssured);
+          }
+          // Valid age and there's an existing quote — show modal prompt
+          const dobModal = document.getElementById('dobChangeModal');
+          if (dobModal) dobModal.style.display = 'flex';
         }
       }, 800);
+    });
+  }
+
+  // DOB change modal buttons
+  const dobModalDismissBtn = document.getElementById('dobModalDismissBtn');
+  if (dobModalDismissBtn) {
+    dobModalDismissBtn.addEventListener('click', function () {
+      const dobModal = document.getElementById('dobChangeModal');
+      if (dobModal) dobModal.style.display = 'none';
+    });
+  }
+
+  const dobModalCalcBtn = document.getElementById('dobModalCalcBtn');
+  if (dobModalCalcBtn) {
+    dobModalCalcBtn.addEventListener('click', function () {
+      const dobModal = document.getElementById('dobChangeModal');
+      if (dobModal) dobModal.style.display = 'none';
+      calculate();
     });
   }
 
