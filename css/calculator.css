@@ -1262,6 +1262,215 @@ body.dark-mode .dob-modal-icon {
   box-shadow: 0 4px 18px rgba(0,0,0,.3);
 }
 
+/* ── BUDGET FINDER / REVERSE CALCULATOR ─────────── */
+.calc-mode-bar {
+  display: flex;
+  background: var(--blue-soft);
+  border-radius: var(--radius);
+  padding: .3rem;
+  gap: .25rem;
+  margin-bottom: 1rem;
+}
+
+.calc-mode-btn {
+  flex: 1;
+  padding: .6rem 1rem;
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  font-family: 'Outfit', sans-serif;
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.calc-mode-btn.active {
+  background: #fff;
+  color: var(--blue);
+  box-shadow: 0 2px 10px rgba(0,11,145,.12);
+}
+
+.rev-results-header {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  margin-bottom: .9rem;
+}
+
+.rev-results-count {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rev-results-sub {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.rev-results-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.rev-result-card {
+  background: var(--off-white);
+  border: 1.5px solid var(--slate);
+  border-radius: 14px;
+  padding: 1rem 1.1rem 1rem;
+  animation: revCardIn .35s ease both;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.rev-result-card:hover {
+  border-color: rgba(0,11,145,.3);
+  box-shadow: 0 4px 18px rgba(0,11,145,.1);
+}
+
+@keyframes revCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rev-card-top {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .2rem;
+}
+
+.rev-card-plan {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rev-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: .15rem .5rem;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.rev-badge-cb  { background: #ecfdf5; color: #047857; }
+.rev-badge-no  { background: var(--blue-soft); color: var(--blue); }
+
+.rev-card-term {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .78rem;
+  color: var(--muted);
+  margin-bottom: .55rem;
+}
+
+.rev-card-sa {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--blue);
+  line-height: 1.1;
+}
+
+.rev-card-sa-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .67rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-top: .1rem;
+  margin-bottom: .65rem;
+}
+
+.rev-card-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: .85rem;
+}
+
+.rev-stat { flex: 1; }
+
+.rev-stat-label {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .67rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .15rem;
+}
+
+.rev-stat-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rev-stat-accent { color: var(--blue); }
+
+.rev-apply-btn {
+  width: 100%;
+  padding: .6rem 1rem;
+  border: 1.5px solid var(--blue);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--blue);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.rev-apply-btn:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+body.dark-mode .calc-mode-bar {
+  background: #0d1526;
+}
+
+body.dark-mode .calc-mode-btn.active {
+  background: #1a2345;
+  color: #8b9aff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.3);
+}
+
+body.dark-mode .rev-result-card {
+  background: #0f172a;
+  border-color: #1e2d4a;
+}
+
+body.dark-mode .rev-result-card:hover {
+  border-color: #4a5af5;
+  box-shadow: 0 4px 18px rgba(74,90,245,.12);
+}
+
+body.dark-mode .rev-badge-cb { background: #064e3b; color: #6ee7b7; }
+body.dark-mode .rev-badge-no { background: #1a2345; color: #8b9aff; }
+
+body.dark-mode .rev-card-sa   { color: #8b9aff; }
+body.dark-mode .rev-stat-accent { color: #8b9aff; }
+
+body.dark-mode .rev-apply-btn {
+  border-color: #4a5af5;
+  color: #8b9aff;
+}
+
+body.dark-mode .rev-apply-btn:hover {
+  background: #4a5af5;
+  color: #fff;
+}
+
 /* ── FOOTER BAR ──────────────────────────────────── */
 .footer-bar {
   background: var(--blue-deep);

@@ -60,6 +60,7 @@ const { RATES, LIFE_PLUS_BASE_RATES, WOP, TERM_IDX } = window.CalculatorData || 
 let payMode = 'monthly';
 const MODE_FACTORS = {monthly:1, quarterly:3, semi:6, annual:12};
 let lastQuoteData = null;
+let calcMode = 'standard'; // 'standard' | 'budget'
 let whatsappLaunchInProgress = false;
 let whatsappLastSubmitAt = 0;
 let whatsappModalSessionId = 0;
@@ -167,6 +168,185 @@ function autoRecalculate() {
   if (lastQuoteData !== null) calculate();
 }
 
+// ── Budget Finder (Reverse Calculator) ────────────────────────────────────────
+
+function switchCalcMode(mode) {
+  calcMode = mode;
+  const isStandard = mode === 'standard';
+
+  document.querySelectorAll('.calc-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.calcMode === mode);
+  });
+
+  document.getElementById('policyDetailsCard').style.display   = isStandard ? '' : 'none';
+  document.getElementById('additionalBenefitsCard').style.display = isStandard ? '' : 'none';
+  document.getElementById('budgetCard').style.display          = isStandard ? 'none' : '';
+  document.getElementById('calculateBtn').style.display        = isStandard ? '' : 'none';
+  document.getElementById('findPlansBtn').style.display        = isStandard ? 'none' : '';
+  document.getElementById('standardResultsCard').style.display = isStandard ? '' : 'none';
+  document.getElementById('reverseResultsCard').style.display  = isStandard ? 'none' : '';
+  document.getElementById('errorMsg').style.display = 'none';
+
+  // Keep budget mode label in sync with current payment mode
+  if (!isStandard) updateBudgetModeLabel();
+}
+
+function updateBudgetModeLabel() {
+  const labels = { monthly: 'Month', quarterly: 'Quarter', semi: 'Half-Year', annual: 'Year' };
+  const el = document.getElementById('budgetModeLabel');
+  if (el) el.textContent = labels[payMode] || 'Month';
+}
+
+function reverseCalculate() {
+  const errDiv = document.getElementById('errorMsg');
+  const errTxt = document.getElementById('errorText');
+
+  const dobRaw = document.getElementById('dob').value;
+  const age    = getAgeFromDob(dobRaw);
+  const budgetRaw = (document.getElementById('budgetAmount').value || '').replace(/,/g, '');
+  const budget = parseFloat(budgetRaw);
+
+  const showErr = (msg) => {
+    if (errTxt) errTxt.textContent = msg;
+    if (errDiv) { errDiv.style.display = 'flex'; try { errDiv.focus(); } catch(e){} }
+  };
+
+  if (!dobRaw)                                  { showErr(UI_MESSAGES.dobRequired); return; }
+  if (age == null || isNaN(age))                { showErr(UI_MESSAGES.dobInvalid);  return; }
+  if (age < 18 || age > 60)                     { showErr(UI_MESSAGES.ageRange);    return; }
+  if (!budget || isNaN(budget) || budget <= 0)  { showErr('Please enter a valid budget amount.'); return; }
+
+  if (errDiv) errDiv.style.display = 'none';
+
+  const modeFactor = MODE_FACTORS[payMode] || 1;
+  const modeLabels = { monthly: 'Monthly', quarterly: 'Quarterly', semi: 'Semi-Annual', annual: 'Annual' };
+  const MAX_MATURITY_AGE = 70;
+  const ALL_PLANS = [
+    'Life Plan- With cash back', 'Life Plan- No cash back',
+    'Education Plan- With cash back', 'Education Plan- No cash back',
+    'Life Plus- With cash back', 'Life Plus- No cash back'
+  ];
+
+  const results = [];
+
+  ALL_PLANS.forEach(plan => {
+    const isLifePlus = plan.includes('Life Plus');
+    const terms = isLifePlus ? [10, 12, 15] : [5, 7, 10, 12, 15];
+
+    terms.forEach(term => {
+      if (age + term > MAX_MATURITY_AGE) return;
+
+      let bestSa = null;
+      let bestMonthly = null;
+
+      if (isLifePlus) {
+        const baseRate = LIFE_PLUS_BASE_RATES?.[plan]?.[term]?.[age];
+        if (!baseRate) return;
+        // monthly = (sa / 10M) * baseRate  →  sa ≤ budget * 10M / (baseRate * modeFactor)
+        const rawMax = (budget * 10000000) / (baseRate * modeFactor);
+        const stepped = Math.floor(rawMax / 10000000) * 10000000;
+        if (stepped < 60000000) return;
+        bestSa = Math.min(stepped, 1000000000);
+        bestMonthly = (bestSa / 10000000) * baseRate;
+      } else {
+        const allowedSas = getAllowedSumAssuredValues(plan, term);
+        for (let i = allowedSas.length - 1; i >= 0; i--) {
+          const sa = allowedSas[i];
+          const monthly = lookupPremium(plan, term, age, sa);
+          if (!monthly) continue;
+          if (monthly * modeFactor <= budget) { bestSa = sa; bestMonthly = monthly; break; }
+        }
+      }
+
+      if (!bestSa || !bestMonthly) return;
+
+      const bonusResult  = computeBonuses(plan, term, bestSa, bestMonthly);
+      const periodPremium = bestMonthly * modeFactor;
+      results.push({ plan, term, sumAssured: bestSa, monthlyPremium: bestMonthly, periodPremium, maturityValue: bonusResult.maturityValue });
+    });
+  });
+
+  results.sort((a, b) => b.sumAssured - a.sumAssured);
+  renderReverseResults(results.slice(0, 6), modeLabels[payMode]);
+}
+
+function renderReverseResults(results, modeLabel) {
+  const content    = document.getElementById('reverseResultContent');
+  const emptyState = document.getElementById('reverseEmptyState');
+
+  if (!results.length) {
+    if (content) content.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+  if (emptyState) emptyState.style.display = 'none';
+
+  content.innerHTML = `
+    <div class="rev-results-header">
+      <span class="rev-results-count">${results.length} plan${results.length !== 1 ? 's' : ''} found</span>
+      <span class="rev-results-sub">Sorted by highest coverage</span>
+    </div>
+    <div class="rev-results-grid">
+      ${results.map((r, i) => renderReverseCard(r, modeLabel, i)).join('')}
+    </div>`;
+
+  content.querySelectorAll('.rev-apply-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => applyReverseResult(results[i]));
+  });
+}
+
+function renderReverseCard(r, modeLabel, index) {
+  const planName   = r.plan.replace(/- (With|No) cash back/i, '').trim();
+  const hasCashback = r.plan.includes('With cash back');
+  const badge = hasCashback
+    ? '<span class="rev-badge rev-badge-cb">Cash Back</span>'
+    : '<span class="rev-badge rev-badge-no">No Cash Back</span>';
+
+  return `
+    <div class="rev-result-card" style="animation-delay:${index * 0.07}s">
+      <div class="rev-card-top">
+        <span class="rev-card-plan">${escapeHTML(planName)}</span>${badge}
+      </div>
+      <div class="rev-card-term">${r.term}-Year Policy</div>
+      <div class="rev-card-sa">TZS ${fmtNum(r.sumAssured)}</div>
+      <div class="rev-card-sa-label">Maximum Coverage</div>
+      <div class="rev-card-stats">
+        <div class="rev-stat">
+          <span class="rev-stat-label">${modeLabel} Premium</span>
+          <span class="rev-stat-value">TZS ${fmtNum(r.periodPremium)}</span>
+        </div>
+        <div class="rev-stat">
+          <span class="rev-stat-label">Maturity Value</span>
+          <span class="rev-stat-value rev-stat-accent">TZS ${fmtNum(r.maturityValue)}</span>
+        </div>
+      </div>
+      <button class="rev-apply-btn" type="button">Apply this plan ⟶</button>
+    </div>`;
+}
+
+function applyReverseResult(r) {
+  switchCalcMode('standard');
+
+  const planEl = document.getElementById('plan');
+  if (planEl) planEl.value = r.plan;
+  updatePlanUI();
+
+  const termEl = document.getElementById('term');
+  if (termEl) termEl.value = String(r.term);
+  updatePlanUI();
+
+  if (r.plan.includes('Life Plus')) {
+    const saEl = document.getElementById('sa');
+    if (saEl) saEl.value = formatWithCommas(String(r.sumAssured));
+  } else {
+    const saSelectEl = document.getElementById('saSelect');
+    if (saSelectEl) saSelectEl.value = String(r.sumAssured);
+  }
+
+  calculate();
+  document.getElementById('standardResultsCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function bindAutoRecalculate() {
   const planEl = document.getElementById('plan');
   if (planEl) planEl.addEventListener('change', autoRecalculate);
@@ -256,9 +436,37 @@ function bindUiEventHandlers() {
   document.querySelectorAll('.seg-btn[data-mode]').forEach((btn) => {
     btn.addEventListener('click', function () {
       const mode = this.getAttribute('data-mode');
-      if (mode) { setMode(mode, this); autoRecalculate(); }
+      if (mode) {
+        setMode(mode, this);
+        updateBudgetModeLabel();
+        if (calcMode === 'standard') autoRecalculate();
+      }
     });
   });
+
+  // Calculator mode toggle (Standard / Budget Finder)
+  document.querySelectorAll('.calc-mode-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const mode = this.dataset.calcMode;
+      if (mode) switchCalcMode(mode);
+    });
+  });
+
+  const findPlansBtn = document.getElementById('findPlansBtn');
+  if (findPlansBtn) findPlansBtn.addEventListener('click', reverseCalculate);
+
+  // Format budget input with commas as user types
+  const budgetAmountEl = document.getElementById('budgetAmount');
+  if (budgetAmountEl) {
+    budgetAmountEl.addEventListener('input', function () {
+      const raw = this.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+      if (raw === '') { this.value = ''; return; }
+      const pos = this.selectionStart || 0;
+      const prevLen = this.value.length;
+      this.value = formatWithCommas(raw);
+      this.setSelectionRange(pos + (this.value.length - prevLen), pos + (this.value.length - prevLen));
+    });
+  }
 
   const cashbackToggle = document.getElementById('cashbackToggle');
   if (cashbackToggle) cashbackToggle.addEventListener('change', syncCashback);
