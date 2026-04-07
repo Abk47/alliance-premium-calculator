@@ -1028,9 +1028,6 @@ function escapeHTML(str) {
 
 function scrollToElement(el) {
   if (!el) return;
-  // On desktop the two columns are side-by-side (> 820px) — the result is
-  // already visible, so scrolling would be disorienting. Only scroll on mobile.
-  if (window.innerWidth > 820) return;
   const headerEl = document.querySelector('header');
   const headerOffset = (headerEl ? headerEl.getBoundingClientRect().height : 0) + 10;
   const rect = el.getBoundingClientRect();
