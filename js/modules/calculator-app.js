@@ -273,9 +273,10 @@ function reverseCalculate() {
 
       if (!bestSa || !bestMonthly) return;
 
-      const bonusResult  = computeBonuses(plan, term, bestSa, bestMonthly);
-      const wopAddon     = bestMonthly * wopRate;
-      const periodPremium = (bestMonthly + wopAddon) * modeFactor;
+      const wopAddon      = bestMonthly * wopRate;
+      const monthlyTotal  = bestMonthly + wopAddon;
+      const bonusResult   = computeBonuses(plan, term, bestSa, monthlyTotal);
+      const periodPremium = monthlyTotal * modeFactor;
       results.push({ plan, term, sumAssured: bestSa, monthlyPremium: bestMonthly, wop: wopIncluded, wopRate, periodPremium, maturityValue: bonusResult.maturityValue });
     });
   });
