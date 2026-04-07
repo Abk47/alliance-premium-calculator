@@ -230,6 +230,8 @@ function reverseCalculate() {
 
   const results = [];
 
+  const includeWop = document.getElementById('budgetWopToggle')?.checked ?? true;
+
   ALL_PLANS.forEach(plan => {
     const isLifePlus = plan.includes('Life Plus');
     const terms = isLifePlus ? [10, 12, 15] : [5, 7, 10, 12, 15];
@@ -239,6 +241,8 @@ function reverseCalculate() {
 
       let bestSa = null;
       let bestMonthly = null;
+      let wopRate = 0;
+      let wopIncluded = false;
 
       if (isLifePlus) {
         const baseRate = LIFE_PLUS_BASE_RATES?.[plan]?.[term]?.[age];
@@ -249,21 +253,30 @@ function reverseCalculate() {
         if (stepped < 60000000) return;
         bestSa = Math.min(stepped, 1000000000);
         bestMonthly = (bestSa / 10000000) * baseRate;
+        // WOP not available on Life Plus
       } else {
+        // Look up WOP rate if the toggle is on
+        if (includeWop) {
+          const wopIdx = TERM_IDX[term];
+          const rate = WOP?.[age]?.[wopIdx];
+          if (rate != null) { wopRate = rate; wopIncluded = true; }
+        }
         const allowedSas = getAllowedSumAssuredValues(plan, term);
         for (let i = allowedSas.length - 1; i >= 0; i--) {
           const sa = allowedSas[i];
           const monthly = lookupPremium(plan, term, age, sa);
           if (!monthly) continue;
-          if (monthly * modeFactor <= budget) { bestSa = sa; bestMonthly = monthly; break; }
+          const totalMonthly = monthly * (1 + wopRate);
+          if (totalMonthly * modeFactor <= budget) { bestSa = sa; bestMonthly = monthly; break; }
         }
       }
 
       if (!bestSa || !bestMonthly) return;
 
       const bonusResult  = computeBonuses(plan, term, bestSa, bestMonthly);
-      const periodPremium = bestMonthly * modeFactor;
-      results.push({ plan, term, sumAssured: bestSa, monthlyPremium: bestMonthly, periodPremium, maturityValue: bonusResult.maturityValue });
+      const wopAddon     = bestMonthly * wopRate;
+      const periodPremium = (bestMonthly + wopAddon) * modeFactor;
+      results.push({ plan, term, sumAssured: bestSa, monthlyPremium: bestMonthly, wop: wopIncluded, wopRate, periodPremium, maturityValue: bonusResult.maturityValue });
     });
   });
 
@@ -309,11 +322,12 @@ function renderReverseCard(r, modeLabel, index) {
   const badge = hasCashback
     ? '<span class="rev-badge rev-badge-cb">Cash Back</span>'
     : '<span class="rev-badge rev-badge-no">No Cash Back</span>';
+  const wopBadge = r.wop ? '<span class="rev-badge rev-badge-wop">🛡️ WOP</span>' : '';
 
   return `
     <div class="rev-result-card" style="animation-delay:${index * 0.07}s">
       <div class="rev-card-top">
-        <span class="rev-card-plan">${escapeHTML(planName)}</span>${badge}
+        <span class="rev-card-plan">${escapeHTML(planName)}</span>${badge}${wopBadge}
       </div>
       <div class="rev-card-term">${r.term}-Year Policy</div>
       <div class="rev-card-sa">TZS ${fmtNum(r.sumAssured)}</div>
@@ -343,6 +357,10 @@ function applyReverseResult(r) {
   const termEl = document.getElementById('term');
   if (termEl) termEl.value = String(r.term);
   updatePlanUI();
+
+  // Set WOP exactly as the suggested plan was calculated
+  const wopEl = document.getElementById('wop');
+  if (wopEl) wopEl.checked = !!r.wop;
 
   if (r.plan.includes('Life Plus')) {
     const saEl = document.getElementById('sa');

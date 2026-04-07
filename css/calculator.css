@@ -1362,6 +1362,7 @@ body.dark-mode .dob-modal-icon {
 
 .rev-badge-cb  { background: #ecfdf5; color: #047857; }
 .rev-badge-no  { background: var(--blue-soft); color: var(--blue); }
+.rev-badge-wop { background: #fff7ed; color: #c2410c; }
 
 .rev-card-term {
   font-family: 'DM Sans', sans-serif;
@@ -1455,8 +1456,9 @@ body.dark-mode .rev-result-card:hover {
   box-shadow: 0 4px 18px rgba(74,90,245,.12);
 }
 
-body.dark-mode .rev-badge-cb { background: #064e3b; color: #6ee7b7; }
-body.dark-mode .rev-badge-no { background: #1a2345; color: #8b9aff; }
+body.dark-mode .rev-badge-cb  { background: #064e3b; color: #6ee7b7; }
+body.dark-mode .rev-badge-no  { background: #1a2345; color: #8b9aff; }
+body.dark-mode .rev-badge-wop { background: #431407; color: #fb923c; }
 
 body.dark-mode .rev-card-sa   { color: #8b9aff; }
 body.dark-mode .rev-stat-accent { color: #8b9aff; }
