@@ -334,7 +334,7 @@ function renderReverseCard(r, modeLabel, index) {
 
 function applyReverseResult(r) {
   switchCalcMode('standard');
-  setTimeout(scrollToQuotationSummary, 50);
+  if (window.innerWidth <= 820) setTimeout(scrollToQuotationSummary, 50);
 
   const planEl = document.getElementById('plan');
   if (planEl) planEl.value = r.plan;
@@ -422,7 +422,7 @@ function bindAutoRecalculate() {
       const dobModal = document.getElementById('dobChangeModal');
       if (dobModal) dobModal.style.display = 'none';
       calculate();
-      setTimeout(scrollToQuotationSummary, 50);
+      if (window.innerWidth <= 820) setTimeout(scrollToQuotationSummary, 50);
     });
   }
 
@@ -481,7 +481,7 @@ function bindUiEventHandlers() {
   if (cashbackToggle) cashbackToggle.addEventListener('change', syncCashback);
 
   const calcBtn = document.getElementById('calculateBtn');
-  if (calcBtn) calcBtn.addEventListener('click', () => { calculate(); setTimeout(scrollToQuotationSummary, 50); });
+  if (calcBtn) calcBtn.addEventListener('click', () => { calculate(); if (window.innerWidth <= 820) setTimeout(scrollToQuotationSummary, 50); });
 
   const pdfBtn = document.getElementById('downloadPdf');
   if (pdfBtn) pdfBtn.addEventListener('click', downloadPdf);
@@ -1028,7 +1028,6 @@ function escapeHTML(str) {
 
 function scrollToElement(el) {
   if (!el) return;
-  if (window.innerWidth > 820) return;
   const headerEl = document.querySelector('header');
   const headerOffset = (headerEl ? headerEl.getBoundingClientRect().height : 0) + 10;
   const rect = el.getBoundingClientRect();
@@ -1273,6 +1272,9 @@ function calculate() {
   `;
 
   animateNumberTransitions(contentDiv);
+
+  // Desktop: scroll on every calculate including auto-recalc (original behaviour)
+  if (window.innerWidth > 820) setTimeout(scrollToQuotationSummary, 50);
 }
 
 // download the currently displayed quotation as a PDF file
