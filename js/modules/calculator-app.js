@@ -1038,6 +1038,7 @@ function applyAlternativeCoverageOption(sumAssuredValue) {
   }
 
   calculate();
+  if (window.innerWidth <= 820) setTimeout(scrollToQuotationSummary, 50);
 }
 
 // simple helper to escape text before inserting in innerHTML
