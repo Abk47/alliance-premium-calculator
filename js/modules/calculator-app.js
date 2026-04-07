@@ -184,8 +184,8 @@ function switchCalcMode(mode) {
   document.getElementById('calculateBtn').style.display        = isStandard ? '' : 'none';
   document.getElementById('findPlansBtn').style.display        = isStandard ? 'none' : '';
   document.getElementById('standardResultsCard').style.display = isStandard ? '' : 'none';
-  // Reverse results card stays hidden until the user clicks "Find Best Plans"
-  if (!isStandard) document.getElementById('reverseResultsCard').style.display = 'none';
+  // Reverse results card stays hidden until "Find Best Plans" is clicked; always hidden in standard mode
+  document.getElementById('reverseResultsCard').style.display = 'none';
   document.getElementById('errorMsg').style.display = 'none';
 
   // Keep budget mode label in sync with current payment mode
