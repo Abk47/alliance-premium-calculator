@@ -365,15 +365,22 @@ function bindAutoRecalculate() {
   const dobEl = document.getElementById('dob');
   if (dobEl) {
     let dobDebounceTimer = null;
-    dobEl.addEventListener('change', function () {
-      const dobValue = this.value;
+    let isDobFocused = false;
+
+    dobEl.addEventListener('focus', function () { isDobFocused = true; });
+    dobEl.addEventListener('blur', function () {
+      isDobFocused = false;
+      // Validate immediately when the user leaves the field
       clearTimeout(dobDebounceTimer);
-      // Debounce: mobile date pickers fire change on each scroll segment
-      // (year, month, day). Wait until the user stops for 800ms before acting.
-      dobDebounceTimer = setTimeout(function () {
-        const newAge = getAgeFromDob(dobValue);
-        if (newAge == null || isNaN(newAge) || newAge < 18 || newAge > 60) {
-          // Invalid age — close modal if open, clear quotation and show validation error
+      dobDebounceTimer = setTimeout(runDobLogic, 0);
+    });
+
+    function runDobLogic() {
+      const dobValue = dobEl.value;
+      const newAge = getAgeFromDob(dobValue);
+      if (newAge == null || isNaN(newAge) || newAge < 18 || newAge > 60) {
+        // Only show error once field is no longer focused (user has finished editing)
+        if (!isDobFocused) {
           lastQuoteData = null;
           const dobModal = document.getElementById('dobChangeModal');
           if (dobModal) dobModal.style.display = 'none';
@@ -392,18 +399,24 @@ function bindAutoRecalculate() {
           if (emptyState) emptyState.style.display = 'block';
           if (pdfBtn) pdfBtn.style.display = 'none';
           if (whatsappBtn) whatsappBtn.style.display = 'none';
-          try { if (errDiv) errDiv.focus(); } catch (e) {}
-        } else if (lastQuoteData !== null) {
-          // Restore SA selection in case updatePlanUI reset it during term auto-adjust
-          const saSelectEl = document.getElementById('saSelect');
-          if (saSelectEl && !saSelectEl.value && lastQuoteData.sumAssured) {
-            saSelectEl.value = String(lastQuoteData.sumAssured);
-          }
-          // Valid age and there's an existing quote — show modal prompt
-          const dobModal = document.getElementById('dobChangeModal');
-          if (dobModal) dobModal.style.display = 'flex';
         }
-      }, 800);
+      } else if (lastQuoteData !== null) {
+        // Restore SA selection in case updatePlanUI reset it during term auto-adjust
+        const saSelectEl = document.getElementById('saSelect');
+        if (saSelectEl && !saSelectEl.value && lastQuoteData.sumAssured) {
+          saSelectEl.value = String(lastQuoteData.sumAssured);
+        }
+        // Valid age and there's an existing quote — show modal prompt
+        const dobModal = document.getElementById('dobChangeModal');
+        if (dobModal) dobModal.style.display = 'flex';
+      }
+    }
+
+    dobEl.addEventListener('change', function () {
+      clearTimeout(dobDebounceTimer);
+      // Debounce: mobile date pickers fire change on each scroll segment
+      // (year, month, day). Wait until the user stops for 800ms before acting.
+      dobDebounceTimer = setTimeout(runDobLogic, 800);
     });
   }
 
