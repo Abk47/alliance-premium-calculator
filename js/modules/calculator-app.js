@@ -184,7 +184,8 @@ function switchCalcMode(mode) {
   document.getElementById('calculateBtn').style.display        = isStandard ? '' : 'none';
   document.getElementById('findPlansBtn').style.display        = isStandard ? 'none' : '';
   document.getElementById('standardResultsCard').style.display = isStandard ? '' : 'none';
-  document.getElementById('reverseResultsCard').style.display  = isStandard ? 'none' : '';
+  // Reverse results card stays hidden until the user clicks "Find Best Plans"
+  if (!isStandard) document.getElementById('reverseResultsCard').style.display = 'none';
   document.getElementById('errorMsg').style.display = 'none';
 
   // Keep budget mode label in sync with current payment mode
@@ -271,12 +272,17 @@ function reverseCalculate() {
 }
 
 function renderReverseResults(results, modeLabel) {
+  const card       = document.getElementById('reverseResultsCard');
   const content    = document.getElementById('reverseResultContent');
   const emptyState = document.getElementById('reverseEmptyState');
+
+  // Always reveal the card now that the user has clicked the button
+  if (card) card.style.display = '';
 
   if (!results.length) {
     if (content) content.innerHTML = '';
     if (emptyState) emptyState.style.display = 'block';
+    setTimeout(() => scrollToElement(card), 50);
     return;
   }
   if (emptyState) emptyState.style.display = 'none';
@@ -293,6 +299,8 @@ function renderReverseResults(results, modeLabel) {
   content.querySelectorAll('.rev-apply-btn').forEach((btn, i) => {
     btn.addEventListener('click', () => applyReverseResult(results[i]));
   });
+
+  setTimeout(() => scrollToElement(card), 50);
 }
 
 function renderReverseCard(r, modeLabel, index) {
@@ -344,7 +352,6 @@ function applyReverseResult(r) {
   }
 
   calculate();
-  document.getElementById('standardResultsCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function bindAutoRecalculate() {
@@ -1017,28 +1024,28 @@ function escapeHTML(str) {
   });
 }
 
-function scrollToQuotationSummary() {
-  const target =
-    document.querySelector('.right-col .card-header') ||
-    document.querySelector('.right-col') ||
-    document.getElementById('result');
-  if (!target) return;
-
+function scrollToElement(el) {
+  if (!el) return;
   const headerEl = document.querySelector('header');
   const headerOffset = (headerEl ? headerEl.getBoundingClientRect().height : 0) + 10;
-  const rect = target.getBoundingClientRect();
-
+  const rect = el.getBoundingClientRect();
   const alreadyInView =
     rect.top >= headerOffset &&
     rect.top <= Math.max(headerOffset + 24, window.innerHeight * 0.25);
   if (alreadyInView) return;
-
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const top = Math.max(0, window.scrollY + rect.top - headerOffset);
   window.scrollTo({
-    top,
+    top: Math.max(0, window.scrollY + rect.top - headerOffset),
     behavior: prefersReducedMotion ? 'auto' : 'smooth'
   });
+}
+
+function scrollToQuotationSummary() {
+  scrollToElement(
+    document.getElementById('standardResultsCard') ||
+    document.querySelector('.right-col') ||
+    document.getElementById('result')
+  );
 }
 
 function calculate() {
