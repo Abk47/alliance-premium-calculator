@@ -367,13 +367,17 @@ function bindAutoRecalculate() {
     let dobDebounceTimer = null;
     let isDobFocused = false;
 
-    dobEl.addEventListener('focus', function () { isDobFocused = true; });
-    dobEl.addEventListener('blur', function () {
-      isDobFocused = false;
-      // Validate immediately when the user leaves the field
-      clearTimeout(dobDebounceTimer);
-      dobDebounceTimer = setTimeout(runDobLogic, 0);
+    // Track focus so we never show errors while the user is still editing.
+    // On focus: clear any stale error so they don't re-edit against a red field.
+    dobEl.addEventListener('focus', function () {
+      isDobFocused = true;
+      const errDiv = document.getElementById('errorMsg');
+      if (errDiv) errDiv.style.display = 'none';
     });
+    dobEl.addEventListener('blur', function () { isDobFocused = false; });
+    // NOTE: no validation logic on blur — mobile pickers fire blur when the
+    // picker overlay opens (before the user finishes selecting), so triggering
+    // runDobLogic there causes spurious errors and breaks the modal.
 
     function runDobLogic() {
       const dobValue = dobEl.value;
@@ -400,15 +404,20 @@ function bindAutoRecalculate() {
           if (pdfBtn) pdfBtn.style.display = 'none';
           if (whatsappBtn) whatsappBtn.style.display = 'none';
         }
-      } else if (lastQuoteData !== null) {
-        // Restore SA selection in case updatePlanUI reset it during term auto-adjust
-        const saSelectEl = document.getElementById('saSelect');
-        if (saSelectEl && !saSelectEl.value && lastQuoteData.sumAssured) {
-          saSelectEl.value = String(lastQuoteData.sumAssured);
+      } else {
+        // Valid age — clear any error immediately
+        const errDiv = document.getElementById('errorMsg');
+        if (errDiv) errDiv.style.display = 'none';
+        if (lastQuoteData !== null) {
+          // Restore SA selection in case updatePlanUI reset it during term auto-adjust
+          const saSelectEl = document.getElementById('saSelect');
+          if (saSelectEl && !saSelectEl.value && lastQuoteData.sumAssured) {
+            saSelectEl.value = String(lastQuoteData.sumAssured);
+          }
+          // Valid age and there's an existing quote — show modal prompt
+          const dobModal = document.getElementById('dobChangeModal');
+          if (dobModal) dobModal.style.display = 'flex';
         }
-        // Valid age and there's an existing quote — show modal prompt
-        const dobModal = document.getElementById('dobChangeModal');
-        if (dobModal) dobModal.style.display = 'flex';
       }
     }
 
