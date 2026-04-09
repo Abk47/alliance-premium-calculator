@@ -17,7 +17,7 @@
   }
 
   function lookupTerminalRate(termYears, planType) {
-    return 0.5;
+    return 0.75;
   }
 
   function lookupCashbackCount(termYears) {

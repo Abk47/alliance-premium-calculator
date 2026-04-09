@@ -965,7 +965,7 @@ function computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashba
   const totalCashback = cashbackCount * singleCashback;
   const revRate = String(planName || '').includes('Education Plan') ? 0.042 : 0.03;
   const totalRevBonus = revRate * termYears * sumAssured;
-  const totalTermBonus = 0.5 * totalRevBonus;
+  const totalTermBonus = 0.75 * totalRevBonus;
   const maturityValue = sumAssured + totalRevBonus + totalTermBonus + totalCashback;
 
   return { totalRevBonus, totalTermBonus, singleCashback, totalCashback, maturityValue, cashbackCount };
