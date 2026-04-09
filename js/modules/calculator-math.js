@@ -13,7 +13,7 @@
   }
 
   function lookupRevRate(termYears, planType) {
-    return planType === 'Education Plan' ? 0.042 : 0.03;
+    return planType === 'Education Plan' ? 0.03 : 0.02;
   }
 
   function lookupTerminalRate(termYears, planType) {
