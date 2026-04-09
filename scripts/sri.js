@@ -16,8 +16,10 @@ const managedScripts = [
 
 function sriForFile(relativeFilePath) {
   const absoluteFilePath = path.resolve(projectRoot, relativeFilePath);
-  // Hash exact on-disk bytes; SRI must match what the browser fetches byte-for-byte.
-  const fileBytes = fs.readFileSync(absoluteFilePath);
+  // Normalize CRLF → LF before hashing so the digest matches what git stores
+  // and what GitHub Pages (and any web server) serves from the LF git objects.
+  const raw = fs.readFileSync(absoluteFilePath);
+  const fileBytes = Buffer.from(raw.toString('binary').replace(/\r\n/g, '\n'), 'binary');
   const digest = crypto.createHash('sha384').update(fileBytes).digest('base64');
   return `sha384-${digest}`;
 }
