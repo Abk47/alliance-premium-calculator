@@ -54,7 +54,11 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('load', checkPdfAvailability);
 
 // ─── Rate Tables ──────────────────────────────────────────────────────────────
-const { RATES, LIFE_PLUS_BASE_RATES, WOP, TERM_IDX } = window.CalculatorData || {};
+const { RATES, LIFE_PLUS_BASE_RATES, WOP_LIFE, WOP_EDU, TERM_IDX } = window.CalculatorData || {};
+
+function getWopTable(plan) {
+  return (plan || '').includes('Education') ? WOP_EDU : WOP_LIFE;
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let payMode = 'monthly';
@@ -258,7 +262,7 @@ function reverseCalculate() {
         // Look up WOP rate if the toggle is on
         if (includeWop) {
           const wopIdx = TERM_IDX[term];
-          const rate = WOP?.[age]?.[wopIdx];
+          const rate = getWopTable(plan)?.[age]?.[wopIdx];
           if (rate != null) { wopRate = rate; wopIncluded = true; }
         }
         const allowedSas = getAllowedSumAssuredValues(plan, term);
@@ -1193,7 +1197,7 @@ function calculate() {
   const wopIdx = TERM_IDX[term];
   let wopRate = 0;
   if (wop) {
-    wopRate = WOP[age]?.[wopIdx];
+    wopRate = getWopTable(plan)?.[age]?.[wopIdx];
     if (wopRate == null) { showError(`WOP rider is not available for age ${age} on a ${term}-year term.`); return; }
   }
 
