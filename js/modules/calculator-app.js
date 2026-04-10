@@ -772,7 +772,6 @@ function lookupPremium(plan, term, age, sa) {
 }
 
 function fmtNum(n) { return Math.round(n).toLocaleString('en-TZ'); }
-function fmt(n)    { return 'TZS ' + fmtNum(n); }
 
 function animateNumberTransitions(container) {
   if (!container) return;
@@ -1192,8 +1191,6 @@ function calculate() {
     }
   }
 
-  const bracket = getBracket(age);
-
   const wopIdx = TERM_IDX[term];
   let wopRate = 0;
   if (wop) {
@@ -1211,7 +1208,6 @@ function calculate() {
   const periodPremium = monthlyTotal * modeFactor;
   const annualPremium = monthlyTotal * 12;
   const roundedMonthlyPremium = Math.round(monthlyTotal);
-  const roundedPeriodPremium = Math.round(periodPremium);
   const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
   // Cashback = 10× monthly premium, paid every 36 contributions within policy term
   const numPayouts = bonusResult.cashbackCount;
@@ -1467,7 +1463,7 @@ async function downloadPdf() {
       if (!win) {
         doc.save('quotation.pdf');
       }
-    } catch (openErr) {
+    } catch {
       doc.save('quotation.pdf');
     }
   } catch (err) {

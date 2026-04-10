@@ -12,11 +12,11 @@
     return 'Life Plan';
   }
 
-  function lookupRevRate(termYears, planType) {
+  function lookupRevRate(planType) {
     return planType === 'Education Plan' ? 0.042 : 0.03;
   }
 
-  function lookupTerminalRate(termYears, planType) {
+  function lookupTerminalRate() {
     return 0.75;
   }
 
@@ -27,10 +27,10 @@
 
   function computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashback) {
     const planType = getPlanType(planName);
-    const revRate = lookupRevRate(termYears, planType);
+    const revRate = lookupRevRate(planType);
     const totalRevBonus = revRate * termYears * sumAssured;
 
-    const termRate = lookupTerminalRate(termYears, planType);
+    const termRate = lookupTerminalRate();
     const totalTermBonus = termRate * totalRevBonus;
 
     const hasCashback = String(planName || '').endsWith('With cash back');
