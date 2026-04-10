@@ -29,6 +29,53 @@
   opacity: 0 !important;
   visibility: hidden !important;
 }
+
+/* ── Birthday easter egg ── */
+#confettiHost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 50;
+}
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  pointer-events: none;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(0)     rotate(0deg);   opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateY(380px) rotate(680deg); opacity: 0; }
+}
+.birthday-toast {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 10000;
+  background: #000b91;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+  padding: .7rem 1.25rem;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: .9rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  box-shadow: 0 8px 32px rgba(0,11,145,.35);
+  pointer-events: none;
+  animation: toastIn .35s cubic-bezier(.34,1.56,.64,1), toastOut .4s ease 3.8s forwards;
+}
+@keyframes toastIn {
+  from { transform: translateY(16px) scale(.95); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateY(0);   opacity: 1; }
+  to   { transform: translateY(8px); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -361,7 +408,7 @@
 <script src="js/vendor/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-data.js" integrity="sha384-BNamELsoeh6ynixLtTkfq4AkPt44aN4aVHw/1GJ5Oewyo7oVWoqaXWz+czGA5itr" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-math.js" integrity="sha384-7cCl9QMMgZ/0zaW5m22Kp/scOWX8ri2VFAnRhsdxpKZQQXkJ2eFTmM+FvaimDDs/" crossorigin="anonymous"></script>
-<script src="js/modules/calculator-app.js" integrity="sha384-8tJsg5m9Q6/BsEv3wjV1ZsuvJeFy1kIOpz7YDGbEP7ZePSnFHLW8CG6aFFK43BNA" crossorigin="anonymous"></script>
+<script src="js/modules/calculator-app.js" integrity="sha384-buJlrZlMSo3M/agEtdjRriELHmCna2SMyblilubaqsIKcR52mJyYoooF4bHNrEEW" crossorigin="anonymous"></script>
 <script src="js/calculator.js" integrity="sha384-NAeci8VhsWfPgSH4ryMnEJoD1EMecd5pmrWVIkJLI1kN3+gcaYXT7JMd7A1xGlP3" crossorigin="anonymous"></script>
 <!-- script moved to calculator.js -->
 </body>
