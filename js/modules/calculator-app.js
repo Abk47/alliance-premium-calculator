@@ -772,7 +772,49 @@ function lookupPremium(plan, term, age, sa) {
 }
 
 function fmtNum(n) { return Math.round(n).toLocaleString('en-TZ'); }
-function fmt(n)    { return 'TZS ' + fmtNum(n); }
+
+// ── Birthday easter egg ──
+function fireBirthdayConfetti() {
+  const card = document.getElementById('standardResultsCard');
+  if (!card) return;
+
+  // Clean up any previous burst
+  const old = document.getElementById('confettiHost');
+  if (old) old.remove();
+
+  card.style.position = 'relative';
+  const host = document.createElement('div');
+  host.id = 'confettiHost';
+  card.appendChild(host);
+
+  const COLORS = ['#000b91','#ed0800','#ffd700','#00b4d8','#ff9f43','#ffffff','#a29bfe','#55efc4'];
+  for (let i = 0; i < 72; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const size = 6 + Math.random() * 7;
+    p.style.cssText = [
+      'left:'             + (Math.random() * 100) + '%',
+      'width:'            + size + 'px',
+      'height:'           + size + 'px',
+      'background:'       + COLORS[Math.floor(Math.random() * COLORS.length)],
+      'border-radius:'    + (Math.random() > .45 ? '50%' : '2px'),
+      'animation-duration:'  + (1.6 + Math.random() * 2.2) + 's',
+      'animation-delay:'     + (Math.random() * 1.0) + 's',
+    ].join(';');
+    host.appendChild(p);
+  }
+
+  // Toast
+  const existing = document.querySelector('.birthday-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'birthday-toast';
+  toast.textContent = '🎂 Happy Birthday!';
+  document.body.appendChild(toast);
+
+  setTimeout(function () { host.remove(); }, 4800);
+  setTimeout(function () { toast.remove(); }, 4400);
+}
 
 function animateNumberTransitions(container) {
   if (!container) return;
@@ -965,7 +1007,7 @@ function computeBonuses(planName, termYears, sumAssured, monthlyPremiumForCashba
   const totalCashback = cashbackCount * singleCashback;
   const revRate = String(planName || '').includes('Education Plan') ? 0.03 : 0.02;
   const totalRevBonus = revRate * termYears * sumAssured;
-  const totalTermBonus = 0.5 * totalRevBonus;
+  const totalTermBonus = 0.75 * totalRevBonus;
   const maturityValue = sumAssured + totalRevBonus + totalTermBonus + totalCashback;
 
   return { totalRevBonus, totalTermBonus, singleCashback, totalCashback, maturityValue, cashbackCount };
@@ -1192,8 +1234,6 @@ function calculate() {
     }
   }
 
-  const bracket = getBracket(age);
-
   const wopIdx = TERM_IDX[term];
   let wopRate = 0;
   if (wop) {
@@ -1211,7 +1251,6 @@ function calculate() {
   const periodPremium = monthlyTotal * modeFactor;
   const annualPremium = monthlyTotal * 12;
   const roundedMonthlyPremium = Math.round(monthlyTotal);
-  const roundedPeriodPremium = Math.round(periodPremium);
   const bonusResult = computeBonuses(plan, term, sa, monthlyTotal);
   // Cashback = 10× monthly premium, paid every 36 contributions within policy term
   const numPayouts = bonusResult.cashbackCount;
@@ -1318,6 +1357,15 @@ function calculate() {
   `;
 
   animateNumberTransitions(contentDiv);
+
+  // Birthday easter egg — fire confetti if today is the client's birthday
+  if (dobRaw) {
+    const dob = new Date(dobRaw);
+    const today = new Date();
+    if (dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate()) {
+      fireBirthdayConfetti();
+    }
+  }
 
   // Desktop: scroll on every calculate including auto-recalc (original behaviour)
   if (window.innerWidth > 820) setTimeout(scrollToQuotationSummary, 50);
@@ -1467,7 +1515,7 @@ async function downloadPdf() {
       if (!win) {
         doc.save('quotation.pdf');
       }
-    } catch (openErr) {
+    } catch {
       doc.save('quotation.pdf');
     }
   } catch (err) {
