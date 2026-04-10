@@ -11,8 +11,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/calculator.css">
 <!-- styles moved to calculator.css -->
+<style>
+@keyframes splashSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.07); opacity: .9; }
+}
+#splashLoader.splash-hide {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+</style>
 </head>
 <body>
+
+<!-- ═══════════════ SPLASH LOADER ═══════════════ -->
+<div id="splashLoader" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(155deg,#000b91 0%,#000660 100%);transition:opacity .45s ease,visibility .45s ease;">
+  <img src="ALAL.png" alt="" style="width:88px;height:88px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 40px rgba(0,0,0,.35);margin-bottom:1.5rem;animation:splashPulse 2s ease-in-out infinite;" />
+  <div style="color:#fff;font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:.04em;margin-bottom:.3rem;">Alliance Life</div>
+  <div style="color:rgba(255,255,255,.65);font-family:'Outfit',sans-serif;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2.25rem;">Assurance Limited</div>
+  <div style="width:42px;height:42px;border-radius:50%;border:4px solid rgba(255,255,255,.18);border-top-color:#fff;animation:splashSpin .85s linear infinite;"></div>
+  <div style="color:rgba(255,255,255,.45);font-family:'Outfit',sans-serif;font-size:.75rem;margin-top:1.5rem;letter-spacing:.05em;">Premium Calculator</div>
+</div>
+
 <a href="#mainContent" class="skip-link">Skip to calculator</a>
 
 <!-- ═══════════════ HEADER ═══════════════ -->
@@ -321,7 +344,7 @@
 <script src="js/modules/calculator-data.js" integrity="sha384-BNamELsoeh6ynixLtTkfq4AkPt44aN4aVHw/1GJ5Oewyo7oVWoqaXWz+czGA5itr" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-math.js" integrity="sha384-CNS66Ieyf6UmmtOCOvoDJVkdebUpLJCINE+KuF11sXyLOa4JgxldRxXHCcE2vkNQ" crossorigin="anonymous"></script>
 <script src="js/modules/calculator-app.js" integrity="sha384-l+RaeokpK6uV+tDS2SHWw/gJihJ++mdC+1uMLG6FzO1/gybYf+FIftabv0AeBJfk" crossorigin="anonymous"></script>
-<script src="js/calculator.js" integrity="sha384-i2P3Phe5C7JozbDskN5ayiwI3ZfzfH26yhQsXLzvLMo8iP6jAg+7mFXeqSzjJNW6" crossorigin="anonymous"></script>
+<script src="js/calculator.js" integrity="sha384-NAeci8VhsWfPgSH4ryMnEJoD1EMecd5pmrWVIkJLI1kN3+gcaYXT7JMd7A1xGlP3" crossorigin="anonymous"></script>
 <!-- script moved to calculator.js -->
 </body>
 </html>
