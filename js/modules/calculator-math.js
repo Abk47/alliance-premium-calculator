@@ -17,7 +17,7 @@
   }
 
   function lookupTerminalRate() {
-    return 0.75;
+    return 0.5;
   }
 
   function lookupCashbackCount(termYears) {
