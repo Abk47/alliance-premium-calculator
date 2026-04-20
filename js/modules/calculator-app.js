@@ -71,6 +71,13 @@ let whatsappModalSessionId = 0;
 let whatsappLastSentSessionId = -1;
 const THEME_STORAGE_KEY = 'alliance-theme';
 
+// ── Umami event tracking ──────────────────────────────────────────────────────
+function track(event, data) {
+  try {
+    if (typeof umami !== 'undefined') umami.track(event, data);
+  } catch {}
+}
+
 function applyTheme(theme) {
   const body = document.body;
   if (!body) return;
@@ -318,6 +325,7 @@ function renderReverseResults(results, modeLabel) {
     btn.addEventListener('click', () => applyReverseResult(results[i]));
   });
 
+  track('find_plans', { results: results.length, mode: payMode });
   setTimeout(() => scrollToElement(card), 50);
 }
 
@@ -974,6 +982,7 @@ function sendViaWhatsapp() {
   const whatsappUrl = `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(message)}`;
 
   try {
+    track('send_whatsapp');
     const win = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     if (!win && errEl) {
       errEl.textContent = 'Popup blocked. Please allow popups and try again.';
@@ -1358,6 +1367,8 @@ function calculate() {
 
   animateNumberTransitions(contentDiv);
 
+  track('calculate_premium', { plan, term, mode: payMode });
+
   // Birthday easter egg — fire confetti if today is the client's birthday
   if (dobRaw) {
     const dob = new Date(dobRaw);
@@ -1512,6 +1523,7 @@ async function downloadPdf() {
       if (win) {
         try { win.opener = null; } catch (e) {}
       }
+      track('download_pdf');
       if (!win) {
         doc.save('quotation.pdf');
       }
